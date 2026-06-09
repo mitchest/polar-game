@@ -5,6 +5,8 @@ regions. It's reached by scanning a QR code on the final slide of the *Life in
 the Freezers* presentation, so it's designed to play equally well on a computer
 (keyboard) and a touch-only iPad or phone.
 
+### Live game URL:
+**https://mitchest.github.io/polar-game/**  
 > Pick a region, beat the challenge, and you're rewarded with an animated screen
 > of polar facts (taken straight from Moss's slides).
 
