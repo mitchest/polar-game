@@ -1,0 +1,313 @@
+# Life in the Freezers — Full Game Plan
+
+A small 2D browser game to complement Moss's school project on the polar
+regions. It will be reached by scanning a QR code on the final slide of the
+*Life in the Freezers* presentation. The layout is **landscape-first**, and it must be **fully playable with either
+keyboard or touch** — some kids will be on a computer, others on a touch-only
+iPad or phone, and the game has to work completely on either.
+
+> **Confirmed decisions:** TypeScript · simple programmer art first (upgrade
+> later, possibly with Moss's own drawings) · landscape layout · **both keyboard
+> and touch are first-class inputs**, supported throughout (not a later add-on).
+
+---
+
+## 1. Concept & goals
+
+- **Theme:** "Life in the Freezers" — two polar mini-games plus an animated
+  facts finale, drawn straight from Moss's slides.
+- **Audience:** classmates, teachers, family — opened on phones via a QR code.
+  Must load fast, run on a mid-range phone, and be playable with no instructions.
+- **Tone:** cute, friendly, low-stakes. Quick to win, fun to retry.
+- **Length:** ~30–90 seconds per stage. The whole thing is a 2–3 minute experience.
+
+### Design pillars
+1. **Plays on keyboard *or* touch — equally.** Both are first-class. Every action
+   (move, confirm, retry) is reachable with arrow keys / WASD / space *and* with
+   touch. Big readable tap targets so it works on an iPad or a laptop.
+2. **Pick-up-and-play.** One clear goal per stage, shown with a one-line hint.
+3. **Educational payoff.** Winning a stage rewards you with the animated facts screen.
+
+---
+
+## 2. Structure & flow
+
+```
+                 ┌─────────────┐
+                 │  Title /    │   "Life in the Freezers — by Moss"
+                 │  Main Menu  │   [ Arctic ]   [ Antarctic ]
+                 └──────┬──────┘
+            ┌───────────┴───────────┐
+            ▼                       ▼
+     ┌─────────────┐         ┌──────────────┐
+     │   ARCTIC    │         │  ANTARCTIC   │
+     │ Fox vs Bear │         │ Penguin vs   │
+     │ (stealth)   │         │ Leopard Seal │
+     └──────┬──────┘         └──────┬───────┘
+       win / lose                win / lose
+            │                       │
+   lose → Game Over          lose → Game Over
+   (Retry / Menu)            (Retry / Menu)
+            │                       │
+            └──────────┬────────────┘
+                  win  ▼
+              ┌──────────────────┐
+              │  FACTS / VICTORY │  animated polar facts, "by Moss"
+              │   (Play again)   │
+              └──────────────────┘
+```
+
+- Two entry points from the menu: **Arctic** or **Antarctic**.
+- Clearing **either** stage leads to the animated **Facts** screen (the win
+  ending). Players can return to the menu to try the other stage too.
+- Losing shows a friendly **Game Over** with **Retry** and **Menu**.
+
+---
+
+## 3. Tech stack & rationale
+
+**Recommendation: Phaser 3 + Vite + TypeScript, deployed to GitHub Pages via GitHub Actions.**
+
+| Choice | Why |
+| --- | --- |
+| **Phaser 3** | Exactly the right tool for a 2D browser game: scenes, arcade physics, sprite/animation/tween/particle systems, input (keyboard + touch), and an asset loader — all batteries included. Your instinct was good. |
+| **Vite** | Instant local dev server with hot reload (`npm run dev`), and a tiny optimised static build (`npm run build`) that drops straight onto GitHub Pages. |
+| **TypeScript** | Catches typos and shape mistakes as you write — very helpful in a hobby project you'll dip in and out of. Phaser ships first-class types. *(If you'd rather keep it plain, we can do JavaScript — see Open Decisions.)* |
+| **GitHub Actions → Pages** | Push to `main`, it builds and publishes automatically. No manual upload step. |
+
+**Alternatives considered (and why not):**
+- *Vanilla Canvas/JS* — total control but we'd hand-build scenes, input, physics,
+  and the asset loader. Slower, more bugs, no real upside here.
+- *Kaboom/kaplay, PixiJS, melonJS* — all capable, but Phaser has the largest
+  tutorial/community footprint for exactly this kind of game, which matters when
+  a parent + kid are learning it together.
+
+**Deployed URL (QR target):** `https://mitchest.github.io/polar-game/`
+
+---
+
+## 4. Target platform & responsiveness
+
+- **Two equally-supported setups:** (a) computer with a keyboard, (b) touch-only
+  iPad / phone. The game is fully playable on either — no feature is keyboard-only
+  or touch-only.
+- **Layout:** **landscape**, a fixed design resolution (e.g. **1280 × 720**) scaled
+  with Phaser's `Scale.FIT` + `autoCenter`, so it letterboxes cleanly on any screen
+  (laptop, iPad, or a phone held sideways). We'll show a gentle "rotate to landscape"
+  hint if a phone is held in portrait.
+- **Controls — both first-class:**
+  - **Keyboard:** arrow keys / WASD to move; **space** (and Enter) to confirm /
+    start / retry, and as the in-stage action button where a stage needs one.
+  - **Touch:** an on-screen virtual joystick / drag-to-move for free movement, plus
+    large tap buttons for menus, confirm, and any action.
+  - Both feed **one shared input layer** (`InputController`) that exposes a simple
+    intent — e.g. a movement vector + an "action" press — so gameplay code never
+    cares whether it came from a key or a finger. This is built up front (M0), so
+    every stage supports both inputs as it's made.
+  - Auto-detect which control hints to show (key prompts vs. on-screen buttons)
+    from whether touch is being used, but keep both live at all times (e.g. a
+    touchscreen laptop works either way).
+- **Performance budget:** keep total assets small (target < ~3 MB) so it loads in
+  a few seconds, even on phone data. Prefer lightweight art over large photos.
+
+---
+
+## 5. Project structure (scaffold)
+
+```
+polar-game/
+├─ index.html                  # mount point + meta viewport (mobile)
+├─ package.json
+├─ vite.config.ts              # base: '/polar-game/' for Pages
+├─ tsconfig.json
+├─ .github/workflows/deploy.yml
+├─ public/
+│  └─ assets/
+│     ├─ images/               # sprites, backgrounds, UI
+│     └─ audio/                # sfx, ambience (optional)
+├─ src/
+│  ├─ main.ts                  # Phaser.Game config + scene registry
+│  ├─ config.ts                # tunable constants (speeds, ranges, sizes)
+│  ├─ scenes/
+│  │  ├─ BootScene.ts          # set scale/input, hand to Preload
+│  │  ├─ PreloadScene.ts       # load assets + loading bar
+│  │  ├─ MenuScene.ts          # title + Arctic/Antarctic buttons
+│  │  ├─ ArcticScene.ts        # fox vs polar bear (stealth)
+│  │  ├─ AntarcticScene.ts     # penguin vs leopard seals (dodge)
+│  │  ├─ FactsScene.ts         # animated win/facts ending
+│  │  └─ GameOverScene.ts      # retry / menu
+│  ├─ objects/
+│  │  ├─ Fox.ts
+│  │  ├─ PolarBear.ts          # + rotating vision cone
+│  │  ├─ Penguin.ts
+│  │  ├─ LeopardSeal.ts
+│  │  └─ VisionCone.ts         # cone draw + line-of-sight test
+│  ├─ ui/
+│  │  ├─ Button.ts
+│  │  └─ VirtualJoystick.ts
+│  └─ data/
+│     └─ facts.ts              # the polar facts content (from the slides)
+├─ orchestra/                  # planning docs (this file)
+└─ README.md
+```
+
+---
+
+## 6. Gameplay design
+
+### 6a. Arctic — "Sneaky Fox" (stealth / line-of-sight)
+
+> An Arctic fox sneaks up on a polar bear to steal its food, hiding behind snow
+> mounds. If the bear sees you, it's game over.
+
+- **View:** top-down.
+- **Player:** the fox, moved smoothly in any direction — **arrow keys / WASD** on a
+  keyboard, or **virtual joystick / drag** on touch (both via the shared input layer).
+- **The bear:** sits near its food (a fish). It has a **vision cone** that slowly
+  **sweeps back and forth** (rotates). Telegraphed and predictable so it feels fair.
+- **Snow mounds:** scattered obstacles that **block the bear's line of sight** — the
+  fox is safe in their "shadow" even when the cone points its way.
+- **Goal:** reach the food without being caught in the cone, grab it, and slip back
+  to the start (a short there-and-back run).
+- **Lose:** the fox is inside the cone, within range, and not hidden behind a mound
+  → "The polar bear saw you!" → Game Over.
+- **Win:** food retrieved and fox returns to the den → Facts screen.
+- **How line-of-sight works (implementation):** each frame, check whether the fox is
+  (a) within the bear's facing angle (± cone half-angle) and (b) within range, then
+  (c) raycast from bear to fox and see if any snow mound (circle) blocks it. Only if
+  all three are true is the fox "seen". This is cheap and easy to tune.
+- **Tuning knobs (`config.ts`):** sweep speed, cone angle, cone range, fox speed,
+  number/placement of mounds. Start forgiving.
+- **Polish later:** a "!" alert + brief grace period before the bear fully spots you;
+  footprints in the snow; a small detection meter.
+
+### 6b. Antarctic — "Slippery Slide" (dodge / runner)
+
+> A gentoo penguin toboggans along the ice. Leopard seals burst out of holes and
+> lunge at it. If a seal catches you, it's game over.
+
+- **View:** top-down, **auto-scrolling forward** (the penguin is always sliding ahead;
+  the camera follows). A distance/progress bar shows how close the goal is.
+- **Player:** steer the penguin **left/right** across the ice — **left/right arrow
+  keys (or A/D)** on a keyboard, or **drag / tilt the joystick / on-screen left-right
+  buttons** on touch. Slightly **slippery** momentum makes it feel like sliding (and
+  adds challenge) without being frustrating.
+- **Hazards:** **holes** appear in the ice ahead; as the penguin nears, a **leopard
+  seal lunges out** toward the penguin's position, then sinks back. Spacing ramps up
+  gently so it starts easy.
+- **Goal:** survive to the end of the run — reach the open water / the colony.
+- **Lose:** a seal's lunge overlaps the penguin → "The leopard seal got you!" → Game Over.
+- **Win:** reach the finish → Facts screen.
+- **Tuning knobs:** scroll speed, steer speed, slipperiness, hole frequency, seal
+  lunge speed/telegraph time, run length.
+- **Polish later:** belly-slide animation, splash particles, fish to collect for a
+  little score, speed-up ramp.
+
+### 6c. Facts / Victory ending (the educational payoff)
+
+- Triggered on winning **either** stage. Celebratory but calm.
+- **Animation:** snow/particle backdrop, fact cards that fade/slide in one at a time,
+  small icons per fact, a gentle title reveal, and a "by Moss" credit.
+- **Buttons:** "Play the other stage" and "Back to menu" / "Play again".
+- **Content** (pulled directly from the slides — see `src/data/facts.ts`):
+
+  **Arctic**
+  - The Arctic sits at the very top of the planet, above an imaginary line called the *Arctic Circle*.
+  - It's made of the Arctic Ocean plus parts of Canada, Russia, the USA, Greenland, Norway, Finland, Sweden and Iceland.
+  - Because Earth tilts, each year the Arctic gets at least one full day of darkness — *and* one full day of sunshine!
+  - Arctic wildlife includes polar bears, Arctic foxes, walruses, seals and whales.
+  - The narwhal is the "sea unicorn" — male narwhals have a tusk that can grow **over 3 metres** long.
+
+  **Antarctic**
+  - Penguins are Antarctica's most famous animals — flightless birds, well adapted but not very adaptable.
+  - Tiny microbes near the surface of the Southern Ocean power the food chain, carrying food from the sunlit surface down to animals in the dark depths.
+  - Coelacanths — a rare fish thought to have lived in the same form for **400 million years** — can be found in Antarctic waters.
+  - Antarctica is fragile but mighty: huge landscapes and teeming wildlife colonies.
+
+---
+
+## 7. Art & audio
+
+- **Art direction:** simple, flat, friendly — readable on a small screen.
+- **Starting approach:** **programmer art** drawn with Phaser graphics + a few simple
+  sprites, so the whole game is playable end-to-end before we polish visuals. Easy to
+  swap for nicer art later without touching gameplay code.
+- **Upgrade path:** free **CC0** asset packs (e.g. Kenney.nl) for sprites/UI, and/or
+  custom drawings — *possibly art Moss makes*, which would be perfect for a school
+  project. (We will **not** ship the photos from the PowerPoint as game art —
+  they're great references but the wrong style/licensing for sprites.)
+- **Audio (optional / stretch):** a soft wind ambience, plus short SFX for "caught"
+  and "win". CC0 sources only. Muted by default with a tap-to-enable toggle (phones
+  block autoplay audio anyway).
+- **Licensing rule:** only CC0 / original art and audio ship in the repo, tracked in a
+  short `CREDITS.md`.
+
+---
+
+## 8. Deployment & local dev
+
+### Local
+- `npm install` — once.
+- `npm run dev` — local dev server with hot reload (test in your laptop browser; also
+  reachable from your phone on the same Wi-Fi via the network URL Vite prints).
+- `npm run build` — production build into `dist/`.
+- `npm run preview` — serve the built `dist/` locally to sanity-check before pushing.
+
+### GitHub Pages (automatic)
+- `vite.config.ts` sets `base: '/polar-game/'` so asset paths resolve under the Pages
+  subpath.
+- `.github/workflows/deploy.yml`: on push to `main`, build with Vite and publish `dist/`
+  using the official `actions/upload-pages-artifact` + `actions/deploy-pages`.
+- One-time: in the repo, **Settings → Pages → Source = GitHub Actions**.
+- Result: every push to `main` republishes `https://mitchest.github.io/polar-game/`.
+- **QR code:** generate one pointing at that URL and drop it on slide 4 of the deck.
+
+---
+
+## 9. Milestones / roadmap
+
+Each milestone is a working, playable build — we get the deploy pipeline green first
+so there are no nasty surprises before the presentation.
+
+- **M0 — Scaffold, input layer & deploy (de-risk first).** Vite + Phaser + TS skeleton,
+  Boot/Preload/Menu scenes, the **shared keyboard+touch `InputController`** (so every
+  later stage gets both inputs for free), and the GitHub Actions workflow. Goal: a
+  "hello, freezers" build live on GitHub Pages, with a menu you can drive by **both**
+  keyboard and tap. ✅ when the URL works on a laptop *and* an iPad/phone.
+- **M1 — Arctic MVP.** Fox movement, bear with sweeping vision cone, snow-mound
+  occlusion, lose + win conditions, hint text. Tunable and fair.
+- **M2 — Antarctic MVP.** Sliding penguin, seal holes + lunges, lose + win, progress bar.
+- **M3 — Facts ending.** Animated facts screen with the slide content + navigation.
+- **M4 — Polish.** Transitions, difficulty tuning, optional audio + mute toggle,
+  control-hint glyphs (key prompts vs. on-screen buttons), and real-device checks on
+  both a keyboard machine and a touch-only iPad/phone. (Touch isn't a milestone of its
+  own — it's built into every stage from M0 onward.)
+- **M5 — Art pass & ship.** Replace programmer art, final tuning, generate the QR code,
+  final deploy. (Optional: drop in Moss's own drawings.)
+
+---
+
+## 10. Risks & mitigations
+
+- **Mobile input feel** is the biggest risk — get the joystick/steering feeling good
+  early (M1) rather than at the end.
+- **GitHub Pages base-path gotchas** (broken asset URLs) — solved by setting `base`
+  correctly and verified in M0 before any gameplay exists.
+- **Scope creep** — mechanics are deliberately minimal; score, audio, and fancy art
+  are all explicitly "later / optional".
+- **Difficulty** — start everything forgiving; it's a fun complement to a school
+  project, not a challenge game.
+
+---
+
+## 11. Decisions (confirmed)
+
+1. **Language:** TypeScript.
+2. **Art:** start with simple programmer art, upgrade later — possibly with Moss's
+   own drawings of the fox / penguin / etc. for the final art pass.
+3. **Layout & input:** **landscape** (1280 × 720). **Keyboard and touch are both
+   first-class**, supported in every scene from M0 onward via one shared input layer —
+   the game is fully playable on a keyboard computer *or* a touch-only iPad/phone.
+
+Next step on your go-ahead: **M0** — scaffold the project (Vite + Phaser + TS) and get
+a live "hello" build on GitHub Pages before building any gameplay.

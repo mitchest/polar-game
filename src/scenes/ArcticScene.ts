@@ -1,0 +1,307 @@
+import Phaser from 'phaser';
+import { GAME_WIDTH, GAME_HEIGHT, COLORS, ARCTIC } from '../config';
+import InputController from '../input/InputController';
+import Button from '../ui/Button';
+
+/**
+ * Arctic — "Sneaky Fox" stealth.
+ *
+ * The fox must reach the polar bear's fish and carry it back to the den without
+ * being caught in the bear's sweeping vision cone. Snow mounds block the bear's
+ * line of sight, so you dash between cover while the cone is looking elsewhere.
+ */
+export default class ArcticScene extends Phaser.Scene {
+  private controls!: InputController;
+  private fox!: Phaser.GameObjects.Container;
+  private bearHead!: Phaser.GameObjects.Container;
+  private cone!: Phaser.GameObjects.Graphics;
+  private alert!: Phaser.GameObjects.Text;
+  private hint!: Phaser.GameObjects.Text;
+  private food!: Phaser.GameObjects.Container;
+  private carriedFish!: Phaser.GameObjects.Container;
+  private detectBar!: Phaser.GameObjects.Graphics;
+
+  private readonly mounds = ARCTIC.mounds.map((m) => new Phaser.Geom.Circle(m.x, m.y, m.r));
+  private elapsed = 0;
+  private detect = 0; // 0..1 alarm meter
+  private hasFood = false;
+  private ended = false;
+
+  constructor() {
+    super('Arctic');
+  }
+
+  create(): void {
+    this.elapsed = 0;
+    this.detect = 0;
+    this.hasFood = false;
+    this.ended = false;
+
+    this.cameras.main.setBackgroundColor('#eaf6fb');
+    this.cameras.main.fadeIn(250, 14, 34, 51);
+
+    this.drawGround();
+
+    // Den (safe zone) at the bottom.
+    this.add.circle(ARCTIC.den.x, ARCTIC.den.y, ARCTIC.den.radius, 0x3a2a22, 0.18);
+    this.add
+      .circle(ARCTIC.den.x, ARCTIC.den.y + 14, ARCTIC.den.radius * 0.7, 0x2a1d16, 0.9)
+      .setDepth(1);
+    this.add
+      .text(ARCTIC.den.x, ARCTIC.den.y + 30, 'DEN', {
+        fontFamily: 'system-ui, sans-serif',
+        fontSize: '18px',
+        color: '#e9d9c9',
+        fontStyle: 'bold',
+      })
+      .setOrigin(0.5)
+      .setDepth(2);
+
+    // Vision cone (drawn under everything else but the ground).
+    this.cone = this.add.graphics().setDepth(2);
+
+    // Snow mounds (cover).
+    this.mounds.forEach((m) => this.drawMound(m.x, m.y, m.radius));
+
+    // The fish to steal.
+    this.food = this.makeFish(ARCTIC.food.x, ARCTIC.food.y, 1).setDepth(4);
+
+    // Polar bear: a big body plus a head that orbits to the facing direction.
+    this.add.ellipse(ARCTIC.bear.x, ARCTIC.bear.y, 150, 120, 0xffffff).setDepth(5);
+    this.add
+      .ellipse(ARCTIC.bear.x, ARCTIC.bear.y, 150, 120)
+      .setStrokeStyle(3, 0xbcd7e6)
+      .setDepth(5);
+    this.bearHead = this.makeBearHead().setDepth(6);
+
+    this.alert = this.add
+      .text(ARCTIC.bear.x, ARCTIC.bear.y - 95, '!', {
+        fontFamily: 'system-ui, sans-serif',
+        fontSize: '54px',
+        color: '#ff3b30',
+        fontStyle: 'bold',
+      })
+      .setOrigin(0.5)
+      .setDepth(20)
+      .setVisible(false);
+
+    // Fox (player), starts in the den.
+    this.fox = this.makeFox(ARCTIC.den.x, ARCTIC.den.y - 10).setDepth(7);
+    this.carriedFish = this.makeFish(0, -26, 0.6).setVisible(false);
+    this.fox.add(this.carriedFish);
+
+    this.detectBar = this.add.graphics().setDepth(8);
+
+    this.buildHud();
+    this.controls = new InputController(this);
+  }
+
+  update(_time: number, delta: number): void {
+    if (this.ended) return;
+    const dt = delta / 1000;
+    this.elapsed += delta;
+
+    // Move the fox.
+    const mv = this.controls.movement;
+    const r = ARCTIC.foxRadius;
+    this.fox.x = Phaser.Math.Clamp(this.fox.x + mv.x * ARCTIC.foxSpeed * dt, r, GAME_WIDTH - r);
+    this.fox.y = Phaser.Math.Clamp(this.fox.y + mv.y * ARCTIC.foxSpeed * dt, r, GAME_HEIGHT - r);
+    if (mv.x !== 0) this.fox.setScale(mv.x < 0 ? -1 : 1, 1);
+
+    // Sweep the bear's gaze.
+    const facing =
+      Phaser.Math.DegToRad(ARCTIC.sweepBaseDeg) +
+      Phaser.Math.DegToRad(ARCTIC.sweepAmplitudeDeg) *
+        Math.sin((this.elapsed / ARCTIC.sweepPeriodMs) * Math.PI * 2);
+
+    const head = {
+      x: ARCTIC.bear.x + Math.cos(facing) * 40,
+      y: ARCTIC.bear.y + Math.sin(facing) * 40,
+    };
+    this.bearHead.setPosition(head.x, head.y).setRotation(facing);
+
+    const seen = this.isFoxSeen(head, facing);
+    this.drawCone(head, facing, seen);
+
+    // Alarm meter fills while seen, cools while hidden.
+    if (seen) {
+      this.detect += delta / ARCTIC.detectTimeMs;
+    } else {
+      this.detect -= (delta / ARCTIC.detectTimeMs) * ARCTIC.detectDecayMult;
+    }
+    this.detect = Phaser.Math.Clamp(this.detect, 0, 1);
+    this.alert.setVisible(this.detect > 0.05);
+    this.alert.setScale(0.8 + this.detect * 0.6);
+    this.drawDetectBar();
+
+    if (this.detect >= 1) {
+      this.lose();
+      return;
+    }
+
+    // Objective: grab the fish, then return to the den.
+    if (!this.hasFood && this.distanceTo(ARCTIC.food.x, ARCTIC.food.y) < r + 22) {
+      this.hasFood = true;
+      this.food.setVisible(false);
+      this.carriedFish.setVisible(true);
+      this.hint.setText('Got it! Sneak back to the den 🦊');
+    }
+    if (this.hasFood && this.distanceTo(ARCTIC.den.x, ARCTIC.den.y) < ARCTIC.den.radius) {
+      this.win();
+    }
+  }
+
+  // --- detection -----------------------------------------------------------
+
+  private isFoxSeen(head: { x: number; y: number }, facing: number): boolean {
+    const dx = this.fox.x - head.x;
+    const dy = this.fox.y - head.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist > ARCTIC.coneRange) return false;
+
+    const diff = Phaser.Math.Angle.Wrap(Math.atan2(dy, dx) - facing);
+    if (Math.abs(diff) > Phaser.Math.DegToRad(ARCTIC.coneHalfAngleDeg)) return false;
+
+    // Blocked if any snow mound sits on the line from the bear's eyes to the fox.
+    const line = new Phaser.Geom.Line(head.x, head.y, this.fox.x, this.fox.y);
+    const blocked = this.mounds.some((m) => Phaser.Geom.Intersects.LineToCircle(line, m));
+    return !blocked;
+  }
+
+  private distanceTo(x: number, y: number): number {
+    return Phaser.Math.Distance.Between(this.fox.x, this.fox.y, x, y);
+  }
+
+  // --- drawing -------------------------------------------------------------
+
+  private drawCone(head: { x: number; y: number }, facing: number, seen: boolean): void {
+    const half = Phaser.Math.DegToRad(ARCTIC.coneHalfAngleDeg);
+    const color = seen ? 0xff5a5a : 0xfff0a0;
+    this.cone.clear();
+    this.cone.fillStyle(color, 0.18 + this.detect * 0.22);
+    this.cone.slice(head.x, head.y, ARCTIC.coneRange, facing - half, facing + half, false);
+    this.cone.fillPath();
+  }
+
+  private drawDetectBar(): void {
+    this.detectBar.clear();
+    if (this.detect <= 0.05) return;
+    const w = 56;
+    const x = this.fox.x - w / 2;
+    const y = this.fox.y - 34;
+    this.detectBar.fillStyle(0x000000, 0.35).fillRect(x - 2, y - 2, w + 4, 10);
+    const col = Phaser.Display.Color.Interpolate.ColorWithColor(
+      new Phaser.Display.Color(255, 214, 90),
+      new Phaser.Display.Color(255, 60, 60),
+      100,
+      this.detect * 100,
+    );
+    this.detectBar.fillStyle(Phaser.Display.Color.GetColor(col.r, col.g, col.b), 1);
+    this.detectBar.fillRect(x, y, w * this.detect, 6);
+  }
+
+  private drawGround(): void {
+    // A few faint snow patches for texture.
+    const g = this.add.graphics().setDepth(0);
+    g.fillStyle(0xffffff, 0.5);
+    const spots: [number, number, number][] = [
+      [180, 220, 90],
+      [1080, 180, 70],
+      [240, 470, 60],
+      [1040, 540, 95],
+      [700, 350, 55],
+    ];
+    spots.forEach(([x, y, r]) => g.fillCircle(x, y, r));
+  }
+
+  private drawMound(x: number, y: number, r: number): void {
+    const g = this.add.graphics().setDepth(3);
+    g.fillStyle(0xbcd7e6, 0.9).fillEllipse(x, y + r * 0.5, r * 2.1, r * 0.9); // shadow
+    g.fillStyle(0xffffff, 1).fillCircle(x, y, r);
+    g.lineStyle(3, 0xd4e9f4, 1).strokeCircle(x, y, r);
+  }
+
+  // --- sprite factories ----------------------------------------------------
+
+  private makeFox(x: number, y: number): Phaser.GameObjects.Container {
+    const body = this.add.circle(0, 0, ARCTIC.foxRadius, COLORS.fox);
+    const earL = this.add.triangle(-9, -14, 0, 8, 7, -8, 12, 8, COLORS.fox);
+    const earR = this.add.triangle(9, -14, -12, 8, -7, -8, 0, 8, COLORS.fox);
+    const tail = this.add.ellipse(-ARCTIC.foxRadius - 4, 6, 18, 10, COLORS.fox);
+    const tailTip = this.add.ellipse(-ARCTIC.foxRadius - 11, 6, 8, 8, 0xffffff);
+    const snout = this.add.circle(0, 6, 5, 0xffffff);
+    const eyeL = this.add.circle(-5, -2, 2.2, 0x2a1d16);
+    const eyeR = this.add.circle(5, -2, 2.2, 0x2a1d16);
+    return this.add.container(x, y, [tail, tailTip, earL, earR, body, snout, eyeL, eyeR]);
+  }
+
+  private makeBearHead(): Phaser.GameObjects.Container {
+    const head = this.add.circle(0, 0, 30, 0xffffff).setStrokeStyle(3, 0xbcd7e6);
+    const earL = this.add.circle(-20, -20, 9, 0xffffff).setStrokeStyle(2, 0xbcd7e6);
+    const earR = this.add.circle(20, -20, 9, 0xffffff).setStrokeStyle(2, 0xbcd7e6);
+    const nose = this.add.circle(26, 0, 7, 0x2a2a2a);
+    const eyeL = this.add.circle(14, -10, 3, 0x2a2a2a);
+    const eyeR = this.add.circle(14, 10, 3, 0x2a2a2a);
+    return this.add.container(ARCTIC.bear.x, ARCTIC.bear.y, [earL, earR, head, eyeL, eyeR, nose]);
+  }
+
+  private makeFish(x: number, y: number, scale: number): Phaser.GameObjects.Container {
+    const body = this.add.ellipse(0, 0, 30, 16, 0x8fb3c7).setStrokeStyle(2, 0x4f7287);
+    const tail = this.add.triangle(-18, 0, 0, -7, 0, 7, 10, 0, 0x6f93a7);
+    const eye = this.add.circle(8, -2, 2, 0x1c2a33);
+    return this.add.container(x, y, [tail, body, eye]).setScale(scale);
+  }
+
+  // --- HUD + end states ----------------------------------------------------
+
+  private buildHud(): void {
+    this.hint = this.add
+      .text(GAME_WIDTH / 2, 36, 'Sneak up and steal the polar bear’s fish!', {
+        fontFamily: 'system-ui, sans-serif',
+        fontSize: '24px',
+        color: COLORS.textDark,
+        fontStyle: 'bold',
+      })
+      .setOrigin(0.5)
+      .setDepth(20);
+
+    const back = new Button(this, 86, GAME_HEIGHT - 44, '❮ Menu', () => this.toMenu(), {
+      width: 130,
+      height: 52,
+      fontSize: 22,
+    });
+    back.setDepth(20);
+    this.input.keyboard!.on('keydown-ESC', () => this.toMenu());
+  }
+
+  private win(): void {
+    if (this.ended) return;
+    this.ended = true;
+    this.cameras.main.fadeOut(350, 14, 34, 51);
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+      this.scene.start('Facts', { region: 'arctic' });
+    });
+  }
+
+  private lose(): void {
+    if (this.ended) return;
+    this.ended = true;
+    this.cameras.main.shake(250, 0.01);
+    this.cameras.main.fadeOut(400, 40, 10, 10);
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+      this.scene.start('GameOver', {
+        stage: 'Arctic',
+        reason: 'The polar bear spotted you!',
+      });
+    });
+  }
+
+  private toMenu(): void {
+    if (this.ended) return;
+    this.ended = true;
+    this.cameras.main.fadeOut(200, 14, 34, 51);
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+      this.scene.start('Menu');
+    });
+  }
+}

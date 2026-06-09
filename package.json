@@ -1,0 +1,19 @@
+{
+  "name": "polar-game",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Life in the Freezers - a 2D polar-regions browser game",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "phaser": "^3.90.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vite": "^6.4.3"
+  }
+}
