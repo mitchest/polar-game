@@ -25,6 +25,7 @@ export default class AntarcticScene extends Phaser.Scene {
   private controls!: InputController;
   private penguin!: Phaser.GameObjects.Container;
   private vx = 0;
+  private vy = 0;
 
   private holes: Hole[] = [];
   private seals: Seal[] = [];
@@ -44,6 +45,7 @@ export default class AntarcticScene extends Phaser.Scene {
 
   create(): void {
     this.vx = 0;
+    this.vy = 0;
     this.holes = [];
     this.seals = [];
     this.specks = [];
@@ -76,11 +78,14 @@ export default class AntarcticScene extends Phaser.Scene {
       this.specks.push(speck);
     }
 
-    this.penguin = this.makePenguin(ANTARCTIC.penguinStartX, ANTARCTIC.penguinY).setDepth(10);
+    this.penguin = this.makePenguin(
+      ANTARCTIC.penguinStartX,
+      ANTARCTIC.penguinStartY,
+    ).setDepth(10);
 
     this.progressBar = this.add.graphics().setDepth(20);
     this.add
-      .text(GAME_WIDTH / 2, 28, 'Slide to the colony — dodge the leopard seals!', {
+      .text(GAME_WIDTH / 2, 28, 'Dodge the leopard seals!   ↑↓ speed · ←→ steer', {
         fontFamily: 'system-ui, sans-serif',
         fontSize: '22px',
         color: COLORS.textDark,
@@ -127,17 +132,24 @@ export default class AntarcticScene extends Phaser.Scene {
   // --- penguin -------------------------------------------------------------
 
   private updatePenguin(dt: number): void {
-    const ax = this.controls.movement.x;
-    if (Math.abs(ax) > 0.01) {
-      this.vx += ax * ANTARCTIC.steerAccel * dt;
-    } else {
-      this.vx -= this.vx * ANTARCTIC.iceFriction * dt; // glide to a stop on the ice
-    }
-    this.vx = Phaser.Math.Clamp(this.vx, -ANTARCTIC.steerMaxSpeed, ANTARCTIC.steerMaxSpeed);
+    const mv = this.controls.movement;
+    const accel = ANTARCTIC.steerAccel;
+    const max = ANTARCTIC.steerMaxSpeed;
+    const friction = ANTARCTIC.iceFriction;
 
-    let x = this.penguin.x + this.vx * dt;
+    // Horizontal steering (slidey ice momentum).
+    if (Math.abs(mv.x) > 0.01) this.vx += mv.x * accel * dt;
+    else this.vx -= this.vx * friction * dt; // glide to a stop
+    this.vx = Phaser.Math.Clamp(this.vx, -max, max);
+
+    // Vertical: up = slide faster / forward, down = ease back / slower.
+    if (Math.abs(mv.y) > 0.01) this.vy += mv.y * accel * dt;
+    else this.vy -= this.vy * friction * dt;
+    this.vy = Phaser.Math.Clamp(this.vy, -max, max);
+
     const lo = ANTARCTIC.edgeMargin + 20;
     const hi = GAME_WIDTH - ANTARCTIC.edgeMargin - 20;
+    let x = this.penguin.x + this.vx * dt;
     if (x < lo) {
       x = lo;
       this.vx = 0;
@@ -145,9 +157,19 @@ export default class AntarcticScene extends Phaser.Scene {
       x = hi;
       this.vx = 0;
     }
-    this.penguin.x = x;
+
+    let y = this.penguin.y + this.vy * dt;
+    if (y < ANTARCTIC.penguinMinY) {
+      y = ANTARCTIC.penguinMinY;
+      this.vy = 0;
+    } else if (y > ANTARCTIC.penguinMaxY) {
+      y = ANTARCTIC.penguinMaxY;
+      this.vy = 0;
+    }
+
+    this.penguin.setPosition(x, y);
     // Lean into the slide a little.
-    this.penguin.setRotation(Phaser.Math.Clamp(this.vx / ANTARCTIC.steerMaxSpeed, -1, 1) * 0.18);
+    this.penguin.setRotation(Phaser.Math.Clamp(this.vx / max, -1, 1) * 0.18);
   }
 
   private updateSpecks(dt: number): void {

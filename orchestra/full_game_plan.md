@@ -118,7 +118,7 @@ iPad or phone, and the game has to work completely on either.
 polar-game/
 ├─ index.html                  # mount point + meta viewport (mobile)
 ├─ package.json
-├─ vite.config.ts              # base: '/polar-game/' for Pages
+├─ vite.config.ts              # base: './' (relative) so it works under the Pages subpath
 ├─ tsconfig.json
 ├─ .github/workflows/deploy.yml
 ├─ public/
@@ -176,32 +176,37 @@ polar-game/
   (a) within the bear's facing angle (± cone half-angle) and (b) within range, then
   (c) raycast from bear to fox and see if any snow mound (circle) blocks it. Only if
   all three are true is the fox "seen". This is cheap and easy to tune.
-- **Tuning knobs (`config.ts`):** sweep speed, cone angle, cone range, fox speed,
-  number/placement of mounds. Start forgiving.
-- **Polish later:** a "!" alert + brief grace period before the bear fully spots you;
-  footprints in the snow; a small detection meter.
+- **Tuning knobs (`config.ts` → `ARCTIC`):** sweep speed, cone angle, cone range, fox
+  speed, number/placement of mounds, and the spotting timer.
+- **As built (M1):** a "!" alert + a **detection meter** fills while you're seen and
+  cools while you hide. Spotting timer is **~0.5 s** of continuous sight to be caught
+  (tuned up from a gentler default — the stage was too easy). Cone ≈ 27° half-angle,
+  ~470 px range, slow back-and-forth sweep, 6 snow mounds.
+- **Polish later:** footprints in the snow; nicer bear/fox art.
 
 ### 6b. Antarctic — "Slippery Slide" (dodge / runner)
 
 > A gentoo penguin toboggans along the ice. Leopard seals burst out of holes and
 > lunge at it. If a seal catches you, it's game over.
 
-- **View:** top-down, **auto-scrolling forward** (the penguin is always sliding ahead;
-  the camera follows). A distance/progress bar shows how close the goal is.
-- **Player:** steer the penguin **left/right** across the ice — **left/right arrow
-  keys (or A/D)** on a keyboard, or **drag / tilt the joystick / on-screen left-right
-  buttons** on touch. Slightly **slippery** momentum makes it feel like sliding (and
-  adds challenge) without being frustrating.
-- **Hazards:** **holes** appear in the ice ahead; as the penguin nears, a **leopard
-  seal lunges out** toward the penguin's position, then sinks back. Spacing ramps up
-  gently so it starts easy.
-- **Goal:** survive to the end of the run — reach the open water / the colony.
-- **Lose:** a seal's lunge overlaps the penguin → "The leopard seal got you!" → Game Over.
-- **Win:** reach the finish → Facts screen.
-- **Tuning knobs:** scroll speed, steer speed, slipperiness, hole frequency, seal
-  lunge speed/telegraph time, run length.
-- **Polish later:** belly-slide animation, splash particles, fish to collect for a
-  little score, speed-up ramp.
+- **View:** top-down; the ice **scrolls past** beneath the penguin (which sells the
+  forward slide) and speeds up over the run. A progress bar shows how close the colony is.
+- **Player:** steer the penguin across the ice with **slippery ice momentum**:
+  **←/→ (or A/D)** to move sideways, and **↑/↓ (or W/S)** to slide **faster/forward** or
+  **ease back/slower** — a second dodge axis. On touch, the virtual joystick handles all
+  directions. The slidey momentum makes it feel like tobogganing without being frustrating.
+- **Hazards:** **holes** scroll in, pulse a warning, then a **leopard seal lunges out**
+  toward where the penguin is, then carries on past. Spacing ramps up gently.
+- **Goal:** survive the run — reach the colony (the progress bar fills).
+- **Lose:** a seal's lunge overlaps the penguin → "A leopard seal caught you!" → Game Over.
+- **Win:** progress bar full → Facts screen.
+- **Tuning knobs (`config.ts` → `ANTARCTIC`):** scroll speed ramp, steer speed,
+  slipperiness, hole frequency, seal lunge speed, telegraph timing, run length, the
+  penguin's vertical range, and hitbox forgiveness.
+- **As built (M2):** seals lunge **gently** (lunge speed tuned down — the stage was too
+  hard), gradual speed ramp, ~30 s run, forgiving hitbox. Up/down speed control was
+  added in response to playtesting.
+- **Polish later:** belly-slide animation, splash particles, fish to collect for score.
 
 ### 6c. Facts / Victory ending (the educational payoff)
 
@@ -253,12 +258,16 @@ polar-game/
 - `npm run build` — production build into `dist/`.
 - `npm run preview` — serve the built `dist/` locally to sanity-check before pushing.
 
-### GitHub Pages (automatic)
-- `vite.config.ts` sets `base: '/polar-game/'` so asset paths resolve under the Pages
-  subpath.
-- `.github/workflows/deploy.yml`: on push to `main`, build with Vite and publish `dist/`
-  using the official `actions/upload-pages-artifact` + `actions/deploy-pages`.
-- One-time: in the repo, **Settings → Pages → Source = GitHub Actions**.
+### GitHub Pages (automatic, via GitHub Actions — chosen approach)
+- **Why Actions, not plain branch-deploy:** Pages' "deploy from a branch" serves files
+  *as-is* and does **not** run a build, so it can't serve this Vite/TypeScript app
+  directly. A small Action builds it for us and keeps build output out of git.
+- `vite.config.ts` sets `base: './'` (relative paths), which resolves correctly under
+  the Pages project subpath without hard-coding the repo name.
+- `.github/workflows/deploy.yml`: on push to `main` (or a manual run), runs `npm ci` +
+  `npm run build`, then publishes `dist/` via `actions/configure-pages` +
+  `actions/upload-pages-artifact` + `actions/deploy-pages`.
+- One-time: in the repo, **Settings → Pages → Build and deployment → Source = GitHub Actions**.
 - Result: every push to `main` republishes `https://mitchest.github.io/polar-game/`.
 - **QR code:** generate one pointing at that URL and drop it on slide 4 of the deck.
 
@@ -266,22 +275,24 @@ polar-game/
 
 ## 9. Milestones / roadmap
 
-Each milestone is a working, playable build — we get the deploy pipeline green first
-so there are no nasty surprises before the presentation.
+Each milestone is a working, playable build. (We chose to develop locally first and
+wire up deploy once a prototype was working, rather than deploy-first.)
 
-- **M0 — Scaffold, input layer & deploy (de-risk first).** Vite + Phaser + TS skeleton,
+- **M0 — Scaffold & input layer.** ✅ **Done.** Vite + Phaser + TS skeleton,
   Boot/Preload/Menu scenes, the **shared keyboard+touch `InputController`** (so every
-  later stage gets both inputs for free), and the GitHub Actions workflow. Goal: a
-  "hello, freezers" build live on GitHub Pages, with a menu you can drive by **both**
-  keyboard and tap. ✅ when the URL works on a laptop *and* an iPad/phone.
-- **M1 — Arctic MVP.** Fox movement, bear with sweeping vision cone, snow-mound
-  occlusion, lose + win conditions, hint text. Tunable and fair.
-- **M2 — Antarctic MVP.** Sliding penguin, seal holes + lunges, lose + win, progress bar.
-- **M3 — Facts ending.** Animated facts screen with the slide content + navigation.
-- **M4 — Polish.** Transitions, difficulty tuning, optional audio + mute toggle,
-  control-hint glyphs (key prompts vs. on-screen buttons), and real-device checks on
-  both a keyboard machine and a touch-only iPad/phone. (Touch isn't a milestone of its
-  own — it's built into every stage from M0 onward.)
+  later stage gets both inputs for free). Menu drivable by both keyboard and tap; verified
+  on desktop and a phone via the dev server.
+- **M1 — Arctic.** ✅ **Done.** Fox movement, bear with sweeping vision cone, snow-mound
+  line-of-sight occlusion, detection meter, win/lose, hint text. Tuned harder (0.5 s spotting).
+- **M2 — Antarctic.** ✅ **Done.** Sliding penguin with ←→/↑↓ control, seal holes + lunges,
+  progress bar, win/lose. Tuned easier (slower seals) + added vertical speed control.
+- **Deploy pipeline.** ✅ **Done (workflow added).** GitHub Actions builds + publishes on
+  push to `main`; remaining one-time step is flipping **Settings → Pages → Source = GitHub Actions**.
+- **M3 — Facts ending.** *Next.* A first version exists (fact cards + falling snow + nav);
+  M3 gives it the full animated treatment.
+- **M4 — Polish.** Transitions, difficulty tuning from real playtests, optional audio +
+  mute toggle, control-hint glyphs, real-device checks on a keyboard machine and a
+  touch-only iPad/phone.
 - **M5 — Art pass & ship.** Replace programmer art, final tuning, generate the QR code,
   final deploy. (Optional: drop in Moss's own drawings.)
 

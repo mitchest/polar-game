@@ -44,8 +44,8 @@ export const ARCTIC = {
   sweepAmplitudeDeg: 54,
   sweepPeriodMs: 3800, // one full left-right-left sweep
 
-  // Detection forgiveness: how long continuous sight takes to catch you.
-  detectTimeMs: 700,
+  // Detection: how long continuous sight takes to catch you (~half a second).
+  detectTimeMs: 500,
   detectDecayMult: 1.8, // alarm cools this many times faster than it fills
 
   // Snow mounds that block line of sight: {x, y, r}.
@@ -61,26 +61,28 @@ export const ARCTIC = {
 
 // --- Antarctic: "Slippery Slide" toboggan run tuning -----------------------
 export const ANTARCTIC = {
-  penguinY: 565,
   penguinStartX: 640,
+  penguinStartY: 560,
+  penguinMinY: 350, // ↑ = slide faster / push forward (riskier)
+  penguinMaxY: 648, // ↓ = ease off / hang back (safer)
   penguinRadius: 22,
   edgeMargin: 90,
 
-  steerAccel: 2400, // px/s^2 from input
+  steerAccel: 2400, // px/s^2 from input (both axes)
   steerMaxSpeed: 470,
   iceFriction: 2.6, // low = slidey glide when you let go
 
-  scrollSpeedStart: 250,
-  scrollSpeedEnd: 430,
+  scrollSpeedStart: 240,
+  scrollSpeedEnd: 380,
   runDurationMs: 30000, // survive this long to reach the colony
 
   // Hole spawning (interval shrinks over the run as it speeds up).
-  spawnIntervalStartMs: 1150,
-  spawnIntervalEndMs: 620,
+  spawnIntervalStartMs: 1250,
+  spawnIntervalEndMs: 720,
 
-  warnY: 320, // hole shows a ripple/telegraph here
+  warnY: 300, // hole shows a ripple/telegraph here
   triggerY: 450, // seal lunges when a hole passes here
-  sealLungeSpeed: 240, // added on top of scroll speed, aimed at the penguin
+  sealLungeSpeed: 120, // added on top of scroll speed, aimed at the penguin
   sealRadius: 26,
-  hitDistance: 40, // forgiving penguin-vs-seal overlap
+  hitDistance: 38, // forgiving penguin-vs-seal overlap
 } as const;

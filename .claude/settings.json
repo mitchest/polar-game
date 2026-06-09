@@ -48,7 +48,10 @@
       "Bash(perl -e 'alarm 30; exec @ARGV' '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --hide-scrollbars --no-first-run --no-default-browser-check --disable-component-update --virtual-time-budget=1500 --window-size=1280,720 --screenshot=/tmp/sealview.png 'http://localhost:5173/?scene=Antarctic&renderer=canvas')",
       "Bash(echo \"exit=$? $\\(ls -la /tmp/sealview.png)",
       "Bash(echo \"=== dev server: $\\(curl -s -o /dev/null -w '%{http_code}' http://localhost:5173/\\) ===\")",
-      "Bash(rm -f /tmp/s_*.png /tmp/r_*.png /tmp/sealview.png)"
+      "Bash(rm -f /tmp/s_*.png /tmp/r_*.png /tmp/sealview.png)",
+      "Bash(rm -f a_check.png)",
+      "Bash(perl -e 'alarm 30; exec @ARGV' '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --no-sandbox --hide-scrollbars --no-first-run --no-default-browser-check --disable-component-update --virtual-time-budget=1500 --window-size=1280,720 --screenshot=/tmp/a_check.png 'http://localhost:5173/?scene=Antarctic&renderer=canvas')",
+      "Bash(echo \"exit=$? $\\(ls -la /tmp/a_check.png)"
     ]
   }
 }

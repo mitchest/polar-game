@@ -75,23 +75,18 @@ game logic.
 
 ## Deployment — GitHub Pages
 
-The project builds to a static `dist/` folder that GitHub Pages can serve
-directly. Vite's `base` is set to `'./'` (relative paths) so assets resolve
-correctly under the Pages project subpath.
+Deployed automatically by **GitHub Actions**. The workflow
+([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)) builds the Vite
+app and publishes `dist/` to GitHub Pages on every push to `main` — no build
+output is committed to the repo. Vite's `base` is `'./'` (relative paths), so
+assets resolve correctly under the Pages project subpath.
 
-Intended deploy style: a GitHub Actions workflow builds on every push to `main`
-and publishes `dist/` to Pages.
+**One-time setup:** in the repo, go to **Settings → Pages → Build and deployment
+→ Source = GitHub Actions**. After that, each push to `main` rebuilds and
+republishes the site (you can also trigger it manually from the **Actions** tab).
 
-1. In the repo: **Settings → Pages → Source = GitHub Actions**.
-2. Add a workflow (`.github/workflows/deploy.yml`) that runs `npm ci && npm run build`
-   and publishes `dist/` via `actions/upload-pages-artifact` + `actions/deploy-pages`.
-3. Every push to `main` then republishes the site.
-
-Target URL: **https://mitchest.github.io/polar-game/** — the address the
+Live URL: **https://mitchest.github.io/polar-game/** — the address the
 presentation's QR code points to.
-
-> Status: deploy is set up to be enabled when the game is ready to share; until
-> then, develop and play locally with `npm run dev`.
 
 ## Credits
 
