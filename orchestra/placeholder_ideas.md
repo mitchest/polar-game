@@ -30,6 +30,7 @@
 - Reaction time/reactive content style
 - Skill/hop/jump/avoid style runs
 - Crazy cash/candy grab + fishing frenzy style levels for in between
+- Active involvement like throwing snow balls, shooting water etc.
 
 ## Story arc/phases ideas
 

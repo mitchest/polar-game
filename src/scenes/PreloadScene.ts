@@ -2,9 +2,13 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, COLORS } from '../config';
 
 /**
- * Loads assets and shows a loading bar. We have no image/audio files yet (M0
- * uses generated placeholder art), so for now it just creates a couple of
- * reusable textures and moves on. Real asset loads will slot in here later.
+ * Loads assets and shows a loading bar.
+ *
+ * Character art is hand-authored SVG (in `public/assets/images`). We rasterise
+ * each at 2x via `{ scale: 2 }` so it stays crisp on retina/high-DPI screens,
+ * then every sprite is drawn at `setScale(0.5)` so it displays at its authored
+ * size. SVGs are tiny, scale cleanly, and can be swapped for nicer art later
+ * without touching gameplay code.
  */
 export default class PreloadScene extends Phaser.Scene {
   private next = 'Menu';
@@ -25,6 +29,15 @@ export default class PreloadScene extends Phaser.Scene {
     g.fillStyle(0xffffff, 1).fillRect(0, 0, 4, 4);
     g.generateTexture('pixel', 4, 4);
     g.destroy();
+
+    // Character art. Rasterised at 2x for crispness (drawn at 0.5 scale).
+    this.load.svg('fox', 'assets/images/fox.svg', { scale: 2 });
+    this.load.svg('bear-body', 'assets/images/polar-bear-body.svg', { scale: 2 });
+    this.load.svg('bear-head', 'assets/images/polar-bear-head.svg', { scale: 2 });
+    this.load.svg('cod', 'assets/images/cod.svg', { scale: 2 });
+    this.load.svg('penguin', 'assets/images/penguin.svg', { scale: 2 });
+    this.load.svg('leopard-seal', 'assets/images/leopard-seal.svg', { scale: 2 });
+    this.load.svg('ice-hole', 'assets/images/ice-hole.svg', { scale: 2 });
   }
 
   create(): void {

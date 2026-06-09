@@ -233,14 +233,25 @@ polar-game/
 
 ## 7. Art & audio
 
-- **Art direction:** simple, flat, friendly — readable on a small screen.
-- **Starting approach:** **programmer art** drawn with Phaser graphics + a few simple
-  sprites, so the whole game is playable end-to-end before we polish visuals. Easy to
-  swap for nicer art later without touching gameplay code.
-- **Upgrade path:** free **CC0** asset packs (e.g. Kenney.nl) for sprites/UI, and/or
-  custom drawings — *possibly art Moss makes*, which would be perfect for a school
-  project. (We will **not** ship the photos from the PowerPoint as game art —
-  they're great references but the wrong style/licensing for sprites.)
+- **Art direction:** friendly and readable on a small screen, now with a touch of
+  realism — recognisable animals rather than abstract shapes.
+- **Started as:** **programmer art** drawn with Phaser graphics primitives (circles,
+  ellipses, triangles assembled into containers), so the whole game was playable
+  end-to-end before polishing visuals.
+- **Now (first art upgrade):** characters are **hand-authored SVG sprites** in
+  `public/assets/images/` — an Arctic fox (white/light-blue), a full-body cream polar
+  bear, a cod, a belly-sliding gentoo penguin, and an angry leopard seal — plus craggy
+  SVG ice holes. They're loaded in `PreloadScene` at `scale: 2` (rasterised at 2× for
+  crispness) and drawn at `setScale(0.5)`. Backgrounds, the vision cone, snow mounds and
+  HUD bars stay as Phaser `Graphics`. SVGs are tiny (~28 KB total), scale cleanly, and
+  keep gameplay code, hitboxes and `config.ts` untouched — only the `makeX` sprite
+  factories changed. **Why SVG over raster PNG:** authored entirely in-repo (no external
+  asset pipeline), tiny for fast phone loading, crisp at any scale, and still tweakable.
+- **Upgrade path:** the SVGs are plain editable vector files; nicer art — *possibly
+  drawings Moss makes*, or CC0 packs (e.g. Kenney.nl) — can drop into the same `load`
+  slots without touching gameplay code. (We will **not** ship the photos from the
+  PowerPoint as game art — they're great references but the wrong style/licensing for
+  sprites.)
 - **Audio (optional / stretch):** a soft wind ambience, plus short SFX for "caught"
   and "win". CC0 sources only. Muted by default with a tap-to-enable toggle (phones
   block autoplay audio anyway).
@@ -293,8 +304,11 @@ wire up deploy once a prototype was working, rather than deploy-first.)
 - **M4 — Polish.** Transitions, difficulty tuning from real playtests, optional audio +
   mute toggle, control-hint glyphs, real-device checks on a keyboard machine and a
   touch-only iPad/phone.
-- **M5 — Art pass & ship.** Replace programmer art, final tuning, generate the QR code,
-  final deploy. (Optional: drop in Moss's own drawings.)
+- **M5 — Art pass & ship.** *In progress.* First art upgrade done — programmer-art
+  characters replaced with hand-authored **SVG sprites** (Arctic fox, full-body polar
+  bear, cod, belly-sliding penguin, angry leopard seal, craggy ice holes). Remaining:
+  final tuning, generate the QR code, final deploy. (Optional: drop in Moss's own
+  drawings via the same `load` slots.)
 
 ---
 
@@ -314,8 +328,9 @@ wire up deploy once a prototype was working, rather than deploy-first.)
 ## 11. Decisions (confirmed)
 
 1. **Language:** TypeScript.
-2. **Art:** start with simple programmer art, upgrade later — possibly with Moss's
-   own drawings of the fox / penguin / etc. for the final art pass.
+2. **Art:** started with simple programmer art; **first upgrade now done** — characters
+   are hand-authored **SVG sprites** (loaded at `scale: 2`, drawn at `0.5`). Can be
+   swapped again later — possibly with Moss's own drawings of the fox / penguin / etc.
 3. **Layout & input:** **landscape** (1280 × 720). **Keyboard and touch are both
    first-class**, supported in every scene from M0 onward via one shared input layer —
    the game is fully playable on a keyboard computer *or* a touch-only iPad/phone.

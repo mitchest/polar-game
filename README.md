@@ -60,6 +60,7 @@ the same Wi-Fi to test touch controls on a real device.
 ## Project structure
 
 ```
+public/assets/images/      # hand-authored SVG character sprites
 src/
 ├─ main.ts                 # Phaser game config + scene registry
 ├─ config.ts               # tunable gameplay constants (speeds, ranges, layouts)
@@ -74,6 +75,21 @@ orchestra/
 Gameplay is deliberately tuned through constants in [`src/config.ts`](src/config.ts)
 (`ARCTIC` and `ANTARCTIC` blocks), so difficulty can be adjusted without touching
 game logic.
+
+## Graphics
+
+Characters (fox, polar bear, cod, penguin, leopard seal) and the craggy ice
+holes are **hand-authored SVG sprites** in
+[`public/assets/images/`](public/assets/images/). They're loaded in
+[`PreloadScene`](src/scenes/PreloadScene.ts) at `scale: 2` (rasterised at 2× so
+they stay crisp on high-DPI screens) and drawn at `setScale(0.5)`, so each
+sprite renders at its authored size. Backgrounds, the vision cone, snow mounds,
+and HUD bars are still drawn with Phaser `Graphics`.
+
+SVGs are tiny (~28 KB total), scale cleanly, and are plain editable vector
+files — so they can be tweaked, or swapped for nicer art (e.g. Moss's own
+drawings) by dropping replacements into the same `load` slots, without touching
+gameplay code.
 
 ## Deployment — GitHub Pages
 

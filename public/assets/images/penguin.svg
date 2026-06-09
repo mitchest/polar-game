@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="74" viewBox="0 0 60 74">
+  <defs>
+    <radialGradient id="penBack" cx="50%" cy="38%" r="65%">
+      <stop offset="0%" stop-color="#3a3f47"/>
+      <stop offset="70%" stop-color="#2a2e35"/>
+      <stop offset="100%" stop-color="#191c21"/>
+    </radialGradient>
+  </defs>
+  <!-- flippers swept back (mid-toboggan) -->
+  <path d="M16 26 Q1 39 11 53 Q18 45 23 33 Z" fill="#23262b"/>
+  <path d="M44 26 Q59 39 49 53 Q42 45 37 33 Z" fill="#23262b"/>
+  <!-- webbed feet trailing behind -->
+  <path d="M20 62 L16 71 L26 67 Z" fill="#f0902f"/>
+  <path d="M40 62 L44 71 L34 67 Z" fill="#f0902f"/>
+  <!-- short tail wedge -->
+  <path d="M30 60 L26 70 L34 70 Z" fill="#191c21"/>
+  <!-- black back -->
+  <ellipse cx="30" cy="40" rx="17" ry="26" fill="url(#penBack)"/>
+  <!-- head -->
+  <circle cx="30" cy="16" r="11" fill="#23262b"/>
+  <!-- gentoo white bonnet patch over the eyes / crown -->
+  <path d="M22 13 Q30 7 38 13 Q34 14.5 30 14.5 Q26 14.5 22 13 Z" fill="#f3f7fb"/>
+  <ellipse cx="24" cy="13.5" rx="3.4" ry="4" fill="#f3f7fb"/>
+  <ellipse cx="36" cy="13.5" rx="3.4" ry="4" fill="#f3f7fb"/>
+  <!-- eyes -->
+  <circle cx="24" cy="14" r="1.7" fill="#10151a"/>
+  <circle cx="36" cy="14" r="1.7" fill="#10151a"/>
+  <!-- orange beak pointing forward -->
+  <path d="M26.5 9 L30 1 L33.5 9 Z" fill="#f3962f"/>
+  <path d="M30 1 L33.5 9 L30 9 Z" fill="#d2731a"/>
+</svg>

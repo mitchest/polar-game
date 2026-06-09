@@ -13,12 +13,12 @@ import Button from '../ui/Button';
 export default class ArcticScene extends Phaser.Scene {
   private controls!: InputController;
   private fox!: Phaser.GameObjects.Container;
-  private bearHead!: Phaser.GameObjects.Container;
+  private bearHead!: Phaser.GameObjects.Image;
   private cone!: Phaser.GameObjects.Graphics;
   private alert!: Phaser.GameObjects.Text;
   private hint!: Phaser.GameObjects.Text;
-  private food!: Phaser.GameObjects.Container;
-  private carriedFish!: Phaser.GameObjects.Container;
+  private food!: Phaser.GameObjects.Image;
+  private carriedFish!: Phaser.GameObjects.Image;
   private detectBar!: Phaser.GameObjects.Graphics;
 
   private readonly mounds = ARCTIC.mounds.map((m) => new Phaser.Geom.Circle(m.x, m.y, m.r));
@@ -66,12 +66,10 @@ export default class ArcticScene extends Phaser.Scene {
     // The fish to steal.
     this.food = this.makeFish(ARCTIC.food.x, ARCTIC.food.y, 1).setDepth(4);
 
-    // Polar bear: a big body plus a head that orbits to the facing direction.
-    this.add.ellipse(ARCTIC.bear.x, ARCTIC.bear.y, 150, 120, 0xffffff).setDepth(5);
-    this.add
-      .ellipse(ARCTIC.bear.x, ARCTIC.bear.y, 150, 120)
-      .setStrokeStyle(3, 0xbcd7e6)
-      .setDepth(5);
+    // Polar bear: a full body plus a head that orbits to the facing direction.
+    // A soft contact shadow lifts the cream body off the pale snow.
+    this.add.ellipse(ARCTIC.bear.x, ARCTIC.bear.y + 10, 152, 116, 0x6f9cba, 0.22).setDepth(4);
+    this.add.image(ARCTIC.bear.x, ARCTIC.bear.y, 'bear-body').setScale(0.5).setDepth(5);
     this.bearHead = this.makeBearHead().setDepth(6);
 
     this.alert = this.add
@@ -223,33 +221,22 @@ export default class ArcticScene extends Phaser.Scene {
 
   // --- sprite factories ----------------------------------------------------
 
+  // The fox sprite faces "up" (toward the bear). Movement only flips it
+  // horizontally, and the carried fish sits at its mouth (offset 0,-26).
+  // A soft shadow keeps the white fox readable against the pale snow.
   private makeFox(x: number, y: number): Phaser.GameObjects.Container {
-    const body = this.add.circle(0, 0, ARCTIC.foxRadius, COLORS.fox);
-    const earL = this.add.triangle(-9, -14, 0, 8, 7, -8, 12, 8, COLORS.fox);
-    const earR = this.add.triangle(9, -14, -12, 8, -7, -8, 0, 8, COLORS.fox);
-    const tail = this.add.ellipse(-ARCTIC.foxRadius - 4, 6, 18, 10, COLORS.fox);
-    const tailTip = this.add.ellipse(-ARCTIC.foxRadius - 11, 6, 8, 8, 0xffffff);
-    const snout = this.add.circle(0, 6, 5, 0xffffff);
-    const eyeL = this.add.circle(-5, -2, 2.2, 0x2a1d16);
-    const eyeR = this.add.circle(5, -2, 2.2, 0x2a1d16);
-    return this.add.container(x, y, [tail, tailTip, earL, earR, body, snout, eyeL, eyeR]);
+    const shadow = this.add.ellipse(0, 18, 36, 13, 0x6f9cba, 0.3);
+    const fox = this.add.image(0, 0, 'fox').setScale(0.6);
+    return this.add.container(x, y, [shadow, fox]);
   }
 
-  private makeBearHead(): Phaser.GameObjects.Container {
-    const head = this.add.circle(0, 0, 30, 0xffffff).setStrokeStyle(3, 0xbcd7e6);
-    const earL = this.add.circle(-20, -20, 9, 0xffffff).setStrokeStyle(2, 0xbcd7e6);
-    const earR = this.add.circle(20, -20, 9, 0xffffff).setStrokeStyle(2, 0xbcd7e6);
-    const nose = this.add.circle(26, 0, 7, 0x2a2a2a);
-    const eyeL = this.add.circle(14, -10, 3, 0x2a2a2a);
-    const eyeR = this.add.circle(14, 10, 3, 0x2a2a2a);
-    return this.add.container(ARCTIC.bear.x, ARCTIC.bear.y, [earL, earR, head, eyeL, eyeR, nose]);
+  // Built facing +x (snout to the right); the scene rotates it to the gaze angle.
+  private makeBearHead(): Phaser.GameObjects.Image {
+    return this.add.image(ARCTIC.bear.x, ARCTIC.bear.y, 'bear-head').setScale(0.5);
   }
 
-  private makeFish(x: number, y: number, scale: number): Phaser.GameObjects.Container {
-    const body = this.add.ellipse(0, 0, 30, 16, 0x8fb3c7).setStrokeStyle(2, 0x4f7287);
-    const tail = this.add.triangle(-18, 0, 0, -7, 0, 7, 10, 0, 0x6f93a7);
-    const eye = this.add.circle(8, -2, 2, 0x1c2a33);
-    return this.add.container(x, y, [tail, body, eye]).setScale(scale);
+  private makeFish(x: number, y: number, scale: number): Phaser.GameObjects.Image {
+    return this.add.image(x, y, 'cod').setScale(0.5 * scale);
   }
 
   // --- HUD + end states ----------------------------------------------------

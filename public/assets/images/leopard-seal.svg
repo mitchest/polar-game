@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="44" viewBox="0 0 96 44">
+  <defs>
+    <linearGradient id="sealBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7a8794"/>
+      <stop offset="55%" stop-color="#67737f"/>
+      <stop offset="100%" stop-color="#515c66"/>
+    </linearGradient>
+  </defs>
+  <!-- tail flippers -->
+  <path d="M3 22 L15 13 L12 22 L15 31 Z" fill="#566069"/>
+  <!-- fore-flippers swept back from the front third -->
+  <path d="M62 17 Q46 3 35 7 Q47 13 58 21 Z" fill="#5b6772"/>
+  <path d="M62 27 Q46 41 35 37 Q47 31 58 23 Z" fill="#5b6772"/>
+  <!-- long sinuous body -->
+  <path d="M9 22 Q30 9 56 13 Q78 16 88 21 Q78 28 56 31 Q30 35 9 22 Z" fill="url(#sealBody)"/>
+  <!-- lighter belly -->
+  <ellipse cx="46" cy="24.5" rx="26" ry="6.5" fill="#aebcc8" opacity="0.45"/>
+  <!-- leopard spots -->
+  <ellipse cx="30" cy="17" rx="2.4" ry="1.7" fill="#3c4651"/>
+  <ellipse cx="42" cy="15" rx="2.6" ry="1.8" fill="#3c4651"/>
+  <ellipse cx="54" cy="16" rx="2.3" ry="1.6" fill="#3c4651"/>
+  <ellipse cx="38" cy="27" rx="2.5" ry="1.7" fill="#3c4651"/>
+  <ellipse cx="50" cy="28" rx="2.2" ry="1.5" fill="#3c4651"/>
+  <ellipse cx="24" cy="24" rx="2" ry="1.4" fill="#3c4651"/>
+  <ellipse cx="64" cy="20" rx="2.2" ry="1.5" fill="#3c4651"/>
+  <!-- broad reptilian head -->
+  <path d="M64 14 Q82 13 86 22 Q82 31 64 30 Q72 22 64 14 Z" fill="url(#sealBody)"/>
+  <!-- open snarling mouth (angry) -->
+  <path d="M78 17 Q94 18 94 22 Q94 26 78 27 Q83 22 78 17 Z" fill="#7c2330"/>
+  <!-- teeth -->
+  <path d="M80 18.5 L82 21 L84 18.8 L86 21 L88 19.2 L90 21 L91.5 19.6 L92 22 L80 22 Z" fill="#ffffff"/>
+  <path d="M80 25.5 L82 23 L84 25.2 L86 23 L88 24.8 L90 23 L91.5 24.4 L92 22 L80 22 Z" fill="#f3f6f8"/>
+  <!-- nostril -->
+  <circle cx="83" cy="15.5" r="1.1" fill="#2c343c"/>
+  <!-- angry narrowed eye with brow -->
+  <path d="M66 12 Q72 10 75 13" stroke="#2c343c" stroke-width="1.6" fill="none"/>
+  <ellipse cx="70" cy="15.5" rx="2.6" ry="1.9" fill="#0d1218"/>
+  <circle cx="70.8" cy="14.9" r="0.7" fill="#9fb0bd"/>
+</svg>

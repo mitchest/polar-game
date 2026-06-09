@@ -23,7 +23,7 @@ interface Seal {
  */
 export default class AntarcticScene extends Phaser.Scene {
   private controls!: InputController;
-  private penguin!: Phaser.GameObjects.Container;
+  private penguin!: Phaser.GameObjects.Image;
   private vx = 0;
   private vy = 0;
 
@@ -202,9 +202,12 @@ export default class AntarcticScene extends Phaser.Scene {
 
   private spawnHole(): void {
     const x = Phaser.Math.Between(ANTARCTIC.edgeMargin + 40, GAME_WIDTH - ANTARCTIC.edgeMargin - 40);
-    const water = this.add.ellipse(0, 0, 86, 54, 0x1f5f86, 0.95);
-    const ring = this.add.ellipse(0, 0, 86, 54).setStrokeStyle(4, 0xbfe6f5, 0.8);
-    const c = this.add.container(x, -40, [water, ring]).setDepth(5);
+    // Craggy ice hole; slight random rotation so no two look identical.
+    const hole = this.add
+      .image(0, 0, 'ice-hole')
+      .setScale(0.5)
+      .setRotation(Phaser.Math.FloatBetween(-0.5, 0.5));
+    const c = this.add.container(x, -40, [hole]).setDepth(5);
     this.holes.push({ c, warned: false, triggered: false });
   }
 
@@ -301,39 +304,17 @@ export default class AntarcticScene extends Phaser.Scene {
 
   // --- sprite factories ----------------------------------------------------
 
-  private makePenguin(x: number, y: number): Phaser.GameObjects.Container {
-    const footL = this.add.triangle(-9, 22, 0, 0, 12, 0, 6, 10, 0xf2a13c);
-    const footR = this.add.triangle(9, 22, -12, 0, 0, 0, -6, 10, 0xf2a13c);
-    const body = this.add.ellipse(0, 0, 46, 60, COLORS.penguin);
-    const belly = this.add.ellipse(0, 4, 30, 46, 0xf3f7fa);
-    const beak = this.add.triangle(0, -28, -7, 6, 7, 6, 0, -8, 0xf2a13c);
-    const eyeL = this.add.circle(-8, -16, 3.2, 0xffffff);
-    const eyeR = this.add.circle(8, -16, 3.2, 0xffffff);
-    const pupL = this.add.circle(-8, -16, 1.6, 0x10151a);
-    const pupR = this.add.circle(8, -16, 1.6, 0x10151a);
-    return this.add.container(x, y, [
-      footL,
-      footR,
-      body,
-      belly,
-      beak,
-      eyeL,
-      eyeR,
-      pupL,
-      pupR,
-    ]);
+  // Gentoo penguin tobogganing on its belly, seen from above (head forward,
+  // flippers out, feet trailing). Built facing up (-y); the scene leans it.
+  private makePenguin(x: number, y: number): Phaser.GameObjects.Image {
+    return this.add.image(x, y, 'penguin').setScale(0.5);
   }
 
+  // Angry leopard seal built pointing right (+x). Wrapped in a container so the
+  // scene's pop-out scale tween (0.4 -> 1) works on top of the sprite's 0.5.
   private makeSeal(x: number, y: number): Phaser.GameObjects.Container {
-    // Built pointing right (+x); rotation aims it along its lunge.
-    const body = this.add.ellipse(0, 0, 64, 30, 0x7c8a99);
-    const belly = this.add.ellipse(-4, 5, 44, 16, 0xcfd8e0);
-    const tail = this.add.triangle(-32, 0, 0, -8, 0, 8, -12, 0, 0x6a7886);
-    const mouth = this.add.ellipse(26, 2, 14, 8, 0x2a2f36);
-    const spotA = this.add.circle(-6, -6, 3, 0x5d6a78);
-    const spotB = this.add.circle(6, 4, 2.5, 0x5d6a78);
-    const eye = this.add.circle(20, -6, 3, 0x10151a);
-    return this.add.container(x, y, [tail, body, belly, mouth, spotA, spotB, eye]);
+    const seal = this.add.image(0, 0, 'leopard-seal').setScale(0.5);
+    return this.add.container(x, y, [seal]);
   }
 
   // --- end states ----------------------------------------------------------

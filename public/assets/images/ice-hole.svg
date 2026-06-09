@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="104" height="68" viewBox="0 0 104 68">
+  <defs>
+    <radialGradient id="holeWater" cx="46%" cy="44%" r="62%">
+      <stop offset="0%" stop-color="#1d5f86"/>
+      <stop offset="60%" stop-color="#123f5a"/>
+      <stop offset="100%" stop-color="#0a2c41"/>
+    </radialGradient>
+  </defs>
+  <!-- craggy ice rim (jagged broken edge) -->
+  <polygon points="102,34 88,20 84,12 66,16 52,4 40,15 22,11 18,22 3,34 18,46 22,56 40,53 52,64 64,52 82,57 86,46"
+           fill="#dceff8" stroke="#aed3e8" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- cracks fanning into the surrounding ice -->
+  <path d="M88 28 L100 22 M20 44 L8 50 M52 9 L50 21 M52 60 L52 47" stroke="#b9def0" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <!-- dark open water (jagged inner edge) -->
+  <polygon points="86,34 74,24 60,20 48,26 34,21 24,30 18,34 26,42 34,48 48,44 60,49 72,44 80,40"
+           fill="url(#holeWater)" stroke="#0a2c41" stroke-width="1"/>
+  <!-- water ripple highlight -->
+  <ellipse cx="50" cy="32" rx="20" ry="8" fill="none" stroke="#4f96c0" stroke-width="1.4" opacity="0.55"/>
+</svg>
