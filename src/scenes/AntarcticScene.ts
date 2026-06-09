@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, COLORS, ANTARCTIC } from '../config';
 import InputController from '../input/InputController';
+import { touchControls, isTouchDevice } from '../input/TouchControls';
 import Button from '../ui/Button';
 
 interface Hole {
@@ -103,6 +104,10 @@ export default class AntarcticScene extends Phaser.Scene {
     this.input.keyboard!.on('keydown-ESC', () => this.toMenu());
 
     this.controls = new InputController(this);
+
+    // On touch devices, steer from the control band below the game (Menu button included).
+    if (isTouchDevice()) touchControls.enable(this, () => this.toMenu());
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => touchControls.disable());
   }
 
   update(_time: number, delta: number): void {

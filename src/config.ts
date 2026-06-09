@@ -44,18 +44,20 @@ export const ARCTIC = {
   sweepAmplitudeDeg: 54,
   sweepPeriodMs: 3800, // one full left-right-left sweep
 
-  // Detection: how long continuous sight takes to catch you (~half a second).
-  detectTimeMs: 500,
+  // Detection: how long continuous sight takes to catch you (~a fifth of a second).
+  detectTimeMs: 200,
   detectDecayMult: 1.8, // alarm cools this many times faster than it fills
 
-  // Snow mounds that block line of sight: {x, y, r}.
+  // Snow mounds that block line of sight AND block movement: {x, y, r}.
+  // The last one sits above the den (kept clear of the fox's start/den so the
+  // new collision doesn't shove the fox on spawn).
   mounds: [
     { x: 430, y: 300, r: 58 },
     { x: 850, y: 300, r: 58 },
     { x: 600, y: 430, r: 66 },
     { x: 800, y: 520, r: 58 },
     { x: 410, y: 520, r: 58 },
-    { x: 640, y: 600, r: 50 },
+    { x: 640, y: 548, r: 50 },
   ],
 } as const;
 
@@ -82,7 +84,7 @@ export const ANTARCTIC = {
 
   warnY: 300, // hole shows a ripple/telegraph here
   triggerY: 450, // seal lunges when a hole passes here
-  sealLungeSpeed: 120, // added on top of scroll speed, aimed at the penguin
+  sealLungeSpeed: 96, // added on top of scroll speed, aimed at the penguin (20% slower than before)
   sealRadius: 26,
   hitDistance: 38, // forgiving penguin-vs-seal overlap
 } as const;

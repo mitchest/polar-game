@@ -41,4 +41,4 @@
 - Scent trail comes in, and you have to follow the trail to food/more food.
 
 ### Orcas enter the chat
-- Some hunters/poachers come (for seals in antarctic and polar bear cubs in arctic), and the player has to control an orca to knock over the hunters boats
+- Some hunters/poachers come (for seals in antarctic and polar bear cubs in arctic), and the player has to control an orca to knock over the hunters boats. there's different size boats so some boats require multiple knocks

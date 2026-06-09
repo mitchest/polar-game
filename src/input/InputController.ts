@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { touchControls } from './TouchControls';
 
 /**
  * One shared input layer for the whole game.
@@ -6,10 +7,12 @@ import Phaser from 'phaser';
  * Gameplay code asks for a *movement vector* and an *action press* and never
  * needs to know whether they came from a keyboard or a finger:
  *   - Keyboard: arrow keys / WASD to move, Space/Enter for "action".
- *   - Touch/mouse: a dynamic virtual joystick that appears where you press,
- *     plus a quick tap (that isn't a drag) counts as "action".
+ *   - Touch: the on-screen control band below the game (see TouchControls).
+ *   - Mouse / touchscreen laptop: a dynamic virtual joystick that appears where
+ *     you press on the canvas, plus a quick tap (that isn't a drag) = "action".
  *
- * Both are live at the same time, so a touchscreen laptop works either way.
+ * When the touch band is active (`touchControls.enabled`) it owns steering and
+ * the on-canvas joystick is suppressed, so fingers stay off the gameplay.
  */
 export default class InputController {
   private scene: Phaser.Scene;
@@ -61,7 +64,13 @@ export default class InputController {
 
   /** Current movement intent as a vector with length 0..1. */
   get movement(): Phaser.Math.Vector2 {
-    if (this.joyPointerId !== null && this.joyVector.lengthSq() > 0) {
+    // Touch control band takes priority while it's showing.
+    if (touchControls.enabled) {
+      const t = touchControls.movement;
+      if (t.x !== 0 || t.y !== 0) {
+        return new Phaser.Math.Vector2(t.x, t.y).limit(1);
+      }
+    } else if (this.joyPointerId !== null && this.joyVector.lengthSq() > 0) {
       return this.joyVector.clone().limit(1);
     }
 
@@ -91,6 +100,8 @@ export default class InputController {
   }
 
   private onPointerDown(pointer: Phaser.Input.Pointer): void {
+    // The touch band owns steering; don't spawn an on-canvas joystick over the game.
+    if (touchControls.enabled) return;
     // If the press landed on an interactive UI object (a button), leave it alone.
     if (this.scene.input.hitTestPointer(pointer).length > 0) return;
     if (this.joyPointerId !== null) return; // already tracking one finger

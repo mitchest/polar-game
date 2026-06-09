@@ -21,21 +21,124 @@
         user-select: none;
         font-family: system-ui, sans-serif;
       }
+      /* Vertical stack: the game on top, the touch control band (when shown) below. */
+      #app {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
       #game {
-        width: 100vw;
-        height: 100vh;
+        flex: 1 1 auto;
+        min-height: 0;
         display: flex;
         align-items: center;
         justify-content: center;
+        overflow: hidden;
       }
       #game canvas {
         /* Phaser Scale.FIT handles sizing; just keep crisp edges centered. */
         display: block;
       }
+
+      /* --- Touch control band (hidden unless a gameplay scene shows it) --- */
+      #touch-controls {
+        display: none;
+      }
+      /* When the band shows, pin the game to the top at its natural 16:9 size
+         (height limited by width, but never crowding the band out), and let the
+         band fill whatever's left below it — so there's no dark gap between them. */
+      body.show-touch #game {
+        flex: 0 0 auto;
+        width: 100%;
+        height: min(calc(100vw * 9 / 16), calc(100vh - 150px));
+      }
+      body.show-touch #touch-controls {
+        display: grid;
+        /* minmax(0,1fr) lets the joystick column shrink so the columns always
+           add up to the band width — no overflow that clips the Menu button. */
+        grid-template-columns: minmax(0, 1fr) 124px;
+        flex: 1 1 auto;
+        width: 100%;
+        min-height: 150px;
+        gap: 12px;
+        padding: 12px;
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
+        box-sizing: border-box;
+        overflow: hidden;
+        background: #0b1b29;
+        border-top: 2px solid #1d3a52;
+      }
+      #joy-zone {
+        position: relative;
+        min-width: 0;
+        border-radius: 18px;
+        background: #11293c;
+        border: 2px solid #1d3a52;
+        overflow: hidden;
+        touch-action: none;
+      }
+      #joy-hint {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        color: #6f93ad;
+        font-size: 20px;
+        font-weight: bold;
+        pointer-events: none;
+        transition: opacity 0.1s;
+      }
+      #joy-base,
+      #joy-thumb {
+        position: absolute;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.1s;
+      }
+      #joy-base {
+        width: 120px;
+        height: 120px;
+        background: rgba(127, 196, 239, 0.12);
+        border: 3px solid rgba(127, 196, 239, 0.4);
+      }
+      #joy-thumb {
+        width: 56px;
+        height: 56px;
+        background: rgba(127, 196, 239, 0.5);
+      }
+      #touch-menu {
+        font-family: system-ui, sans-serif;
+        font-size: 22px;
+        font-weight: bold;
+        white-space: nowrap;
+        color: #ffffff;
+        background: #4aa3df;
+        border: 3px solid rgba(255, 255, 255, 0.85);
+        border-radius: 18px;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+      #touch-menu:active {
+        background: #7fc4ef;
+      }
     </style>
   </head>
   <body>
-    <div id="game"></div>
+    <div id="app">
+      <div id="game"></div>
+      <div id="touch-controls" aria-hidden="true">
+        <div id="joy-zone">
+          <div id="joy-hint">Drag here to move</div>
+          <div id="joy-base"></div>
+          <div id="joy-thumb"></div>
+        </div>
+        <button id="touch-menu" type="button">❮ Menu</button>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

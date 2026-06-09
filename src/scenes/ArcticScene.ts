@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT, COLORS, ARCTIC } from '../config';
 import InputController from '../input/InputController';
+import { touchControls, isTouchDevice } from '../input/TouchControls';
 import Button from '../ui/Button';
 
 /**
@@ -92,6 +93,10 @@ export default class ArcticScene extends Phaser.Scene {
 
     this.buildHud();
     this.controls = new InputController(this);
+
+    // On touch devices, steer from the control band below the game (Menu button included).
+    if (isTouchDevice()) touchControls.enable(this, () => this.toMenu());
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => touchControls.disable());
   }
 
   update(_time: number, delta: number): void {
@@ -99,11 +104,28 @@ export default class ArcticScene extends Phaser.Scene {
     const dt = delta / 1000;
     this.elapsed += delta;
 
-    // Move the fox.
+    // Move the fox, then push it back out of any snow mound it would enter
+    // (mounds are solid: you can't see through them and you can't walk through them).
     const mv = this.controls.movement;
     const r = ARCTIC.foxRadius;
-    this.fox.x = Phaser.Math.Clamp(this.fox.x + mv.x * ARCTIC.foxSpeed * dt, r, GAME_WIDTH - r);
-    this.fox.y = Phaser.Math.Clamp(this.fox.y + mv.y * ARCTIC.foxSpeed * dt, r, GAME_HEIGHT - r);
+    let nx = Phaser.Math.Clamp(this.fox.x + mv.x * ARCTIC.foxSpeed * dt, r, GAME_WIDTH - r);
+    let ny = Phaser.Math.Clamp(this.fox.y + mv.y * ARCTIC.foxSpeed * dt, r, GAME_HEIGHT - r);
+    for (const m of this.mounds) {
+      const ddx = nx - m.x;
+      const ddy = ny - m.y;
+      const d = Math.hypot(ddx, ddy);
+      const minD = m.radius + r;
+      if (d < minD) {
+        if (d > 0.0001) {
+          nx = m.x + (ddx / d) * minD;
+          ny = m.y + (ddy / d) * minD;
+        } else {
+          ny = m.y + minD;
+        }
+      }
+    }
+    this.fox.x = Phaser.Math.Clamp(nx, r, GAME_WIDTH - r);
+    this.fox.y = Phaser.Math.Clamp(ny, r, GAME_HEIGHT - r);
     if (mv.x !== 0) this.fox.setScale(mv.x < 0 ? -1 : 1, 1);
 
     // Sweep the bear's gaze.
@@ -118,8 +140,9 @@ export default class ArcticScene extends Phaser.Scene {
     };
     this.bearHead.setPosition(head.x, head.y).setRotation(facing);
 
-    const seen = this.isFoxSeen(head, facing);
-    this.drawCone(head, facing, seen);
+    const vis = this.foxVisibility(head, facing);
+    const seen = vis === 'seen';
+    this.drawCone(head, facing, vis);
 
     // Alarm meter fills while seen, cools while hidden.
     if (seen) {
@@ -151,19 +174,25 @@ export default class ArcticScene extends Phaser.Scene {
 
   // --- detection -----------------------------------------------------------
 
-  private isFoxSeen(head: { x: number; y: number }, facing: number): boolean {
+  /**
+   * Where the fox stands relative to the bear's gaze:
+   *   'seen'    — inside the cone with a clear line of sight (you get caught),
+   *   'blocked' — inside the cone but a snow mound hides you (safe — cone turns blue),
+   *   'none'    — outside the cone entirely.
+   */
+  private foxVisibility(head: { x: number; y: number }, facing: number): 'seen' | 'blocked' | 'none' {
     const dx = this.fox.x - head.x;
     const dy = this.fox.y - head.y;
     const dist = Math.hypot(dx, dy);
-    if (dist > ARCTIC.coneRange) return false;
+    if (dist > ARCTIC.coneRange) return 'none';
 
     const diff = Phaser.Math.Angle.Wrap(Math.atan2(dy, dx) - facing);
-    if (Math.abs(diff) > Phaser.Math.DegToRad(ARCTIC.coneHalfAngleDeg)) return false;
+    if (Math.abs(diff) > Phaser.Math.DegToRad(ARCTIC.coneHalfAngleDeg)) return 'none';
 
     // Blocked if any snow mound sits on the line from the bear's eyes to the fox.
     const line = new Phaser.Geom.Line(head.x, head.y, this.fox.x, this.fox.y);
     const blocked = this.mounds.some((m) => Phaser.Geom.Intersects.LineToCircle(line, m));
-    return !blocked;
+    return blocked ? 'blocked' : 'seen';
   }
 
   private distanceTo(x: number, y: number): number {
@@ -172,9 +201,14 @@ export default class ArcticScene extends Phaser.Scene {
 
   // --- drawing -------------------------------------------------------------
 
-  private drawCone(head: { x: number; y: number }, facing: number, seen: boolean): void {
+  private drawCone(
+    head: { x: number; y: number },
+    facing: number,
+    vis: 'seen' | 'blocked' | 'none',
+  ): void {
     const half = Phaser.Math.DegToRad(ARCTIC.coneHalfAngleDeg);
-    const color = seen ? 0xff5a5a : 0xfff0a0;
+    // Red = caught, blue = sightline broken by a mound (you're hidden), yellow = clear gaze.
+    const color = vis === 'seen' ? 0xff5a5a : vis === 'blocked' ? 0x55c8e6 : 0xfff0a0;
     this.cone.clear();
     this.cone.fillStyle(color, 0.18 + this.detect * 0.22);
     this.cone.slice(head.x, head.y, ARCTIC.coneRange, facing - half, facing + half, false);
