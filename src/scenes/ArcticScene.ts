@@ -65,7 +65,7 @@ export default class ArcticScene extends Phaser.Scene {
     this.mounds.forEach((m) => this.drawMound(m.x, m.y, m.radius));
 
     // The fish to steal.
-    this.food = this.makeFish(ARCTIC.food.x, ARCTIC.food.y, 1).setDepth(4);
+    this.food = this.makeFish(ARCTIC.food.x, ARCTIC.food.y, 1.3).setDepth(4);
 
     // Polar bear: a full body plus a head that orbits to the facing direction.
     // A soft contact shadow lifts the cream body off the pale snow.
@@ -86,7 +86,7 @@ export default class ArcticScene extends Phaser.Scene {
 
     // Fox (player), starts in the den.
     this.fox = this.makeFox(ARCTIC.den.x, ARCTIC.den.y - 10).setDepth(7);
-    this.carriedFish = this.makeFish(0, -26, 0.6).setVisible(false);
+    this.carriedFish = this.makeFish(0, -28, 0.78).setVisible(false);
     this.fox.add(this.carriedFish);
 
     this.detectBar = this.add.graphics().setDepth(8);
@@ -157,6 +157,12 @@ export default class ArcticScene extends Phaser.Scene {
 
     if (this.detect >= 1) {
       this.lose();
+      return;
+    }
+
+    // Bump into the bear itself and it's an instant catch.
+    if (this.distanceTo(ARCTIC.bear.x, ARCTIC.bear.y) < ARCTIC.bearCatchRadius) {
+      this.lose('The polar bear caught you!');
       return;
     }
 
@@ -304,7 +310,7 @@ export default class ArcticScene extends Phaser.Scene {
     });
   }
 
-  private lose(): void {
+  private lose(reason = 'The polar bear spotted you!'): void {
     if (this.ended) return;
     this.ended = true;
     this.cameras.main.shake(250, 0.01);
@@ -312,7 +318,7 @@ export default class ArcticScene extends Phaser.Scene {
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
       this.scene.start('GameOver', {
         stage: 'Arctic',
-        reason: 'The polar bear spotted you!',
+        reason,
       });
     });
   }

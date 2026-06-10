@@ -181,7 +181,9 @@ polar-game/
 - **As built (M1):** a "!" alert + a **detection meter** fills while you're seen and
   cools while you hide. Spotting timer is **~0.5 s** of continuous sight to be caught
   (tuned up from a gentler default — the stage was too easy). Cone ≈ 27° half-angle,
-  ~470 px range, slow back-and-forth sweep, 6 snow mounds.
+  ~620 px range, slow back-and-forth sweep, 10 snow mounds (a central cluster plus a
+  periphery ring so you can't just hug the outside wall). **Touching the bear itself is
+  also an instant catch.**
 - **Polish later:** footprints in the snow; nicer bear/fox art.
 
 ### 6b. Antarctic — "Slippery Slide" (dodge / runner)
@@ -204,8 +206,8 @@ polar-game/
   slipperiness, hole frequency, seal lunge speed, telegraph timing, run length, the
   penguin's vertical range, and hitbox forgiveness.
 - **As built (M2):** seals lunge **gently** (lunge speed tuned down — the stage was too
-  hard), gradual speed ramp, ~30 s run, forgiving hitbox. Up/down speed control was
-  added in response to playtesting.
+  hard), gradual speed ramp, ~15 s run (track halved for a snappier dash), forgiving
+  hitbox. Up/down speed control was added in response to playtesting.
 - **Polish later:** belly-slide animation, splash particles, fish to collect for score.
 
 ### 6c. Facts / Victory ending (the educational payoff)

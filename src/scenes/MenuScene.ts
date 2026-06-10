@@ -59,6 +59,20 @@ export default class MenuScene extends Phaser.Scene {
         { fontFamily: 'system-ui, sans-serif', fontSize: '20px', color: COLORS.textMuted },
       )
       .setOrigin(0.5);
+
+    // Link to the source code (tap/click opens in a new tab).
+    const repoUrl = 'https://github.com/mitchest/polar-game';
+    const repo = this.add
+      .text(cx, 692, '⟨ ⟩  github.com/mitchest/polar-game', {
+        fontFamily: 'system-ui, sans-serif',
+        fontSize: '20px',
+        color: '#7fc4ef',
+      })
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true });
+    repo.on('pointerover', () => repo.setColor('#ffffff'));
+    repo.on('pointerout', () => repo.setColor('#7fc4ef'));
+    repo.on('pointerup', () => window.open(repoUrl, '_blank', 'noopener'));
   }
 
   private startStage(key: 'Arctic' | 'Antarctic'): void {

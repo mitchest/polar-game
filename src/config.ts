@@ -30,15 +30,20 @@ export const PLAYER_SPEED = 320;
 
 // --- Arctic: "Sneaky Fox" stealth tuning -----------------------------------
 export const ARCTIC = {
-  foxSpeed: 270,
+  foxSpeed: 297, // 10% faster than the old 270
   foxRadius: 16,
 
   bear: { x: 640, y: 140 },
   den: { x: 640, y: 632, radius: 72 },
   food: { x: 640, y: 252 },
 
+  // Touch the bear and you're caught (radius around the bear's body, which is
+  // ~180×160 px). Smaller than the visible body so grabbing the fish from below
+  // stays safe — only walking into the bear catches you.
+  bearCatchRadius: 70,
+
   // Vision cone (angles in degrees; converted to radians in the scene).
-  coneRange: 470,
+  coneRange: 620, // lengthened so going around the outside no longer dodges it
   coneHalfAngleDeg: 27,
   sweepBaseDeg: 90, // straight down toward the play area
   sweepAmplitudeDeg: 54,
@@ -49,8 +54,10 @@ export const ARCTIC = {
   detectDecayMult: 1.8, // alarm cools this many times faster than it fills
 
   // Snow mounds that block line of sight AND block movement: {x, y, r}.
-  // The last one sits above the den (kept clear of the fox's start/den so the
-  // new collision doesn't shove the fox on spawn).
+  // The central cluster, plus a ring of periphery mounds near the side/lower
+  // edges so you can't just hug the outside wall to slip past the bear.
+  // (All kept clear of the fox's start/den so the collision doesn't shove the
+  // fox on spawn.)
   mounds: [
     { x: 430, y: 300, r: 58 },
     { x: 850, y: 300, r: 58 },
@@ -58,6 +65,11 @@ export const ARCTIC = {
     { x: 800, y: 520, r: 58 },
     { x: 410, y: 520, r: 58 },
     { x: 640, y: 548, r: 50 },
+    // periphery ring
+    { x: 200, y: 400, r: 56 },
+    { x: 1080, y: 400, r: 56 },
+    { x: 240, y: 600, r: 52 },
+    { x: 1040, y: 600, r: 52 },
   ],
 } as const;
 
@@ -76,7 +88,7 @@ export const ANTARCTIC = {
 
   scrollSpeedStart: 240,
   scrollSpeedEnd: 380,
-  runDurationMs: 30000, // survive this long to reach the colony
+  runDurationMs: 15000, // survive this long to reach the colony (track halved)
 
   // Hole spawning (interval shrinks over the run as it speeds up).
   spawnIntervalStartMs: 1250,
@@ -84,7 +96,7 @@ export const ANTARCTIC = {
 
   warnY: 300, // hole shows a ripple/telegraph here
   triggerY: 450, // seal lunges when a hole passes here
-  sealLungeSpeed: 96, // added on top of scroll speed, aimed at the penguin (20% slower than before)
+  sealLungeSpeed: 86.4, // added on top of scroll speed, aimed at the penguin (10% slower than the old 96)
   sealRadius: 26,
   hitDistance: 38, // forgiving penguin-vs-seal overlap
 } as const;
