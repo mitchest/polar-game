@@ -46,10 +46,10 @@ export const ARCTIC = {
   bearCatchRadius: 70,
 
   // Vision cone (angles in degrees; converted to radians in the scene).
-  coneRange: 620, // lengthened so going around the outside no longer dodges it
+  coneRange: 900, // reaches the side edges / lower corners of the screen
   coneHalfAngleDeg: 27,
   sweepBaseDeg: 90, // straight down toward the play area
-  sweepAmplitudeDeg: 54,
+  sweepAmplitudeDeg: 68, // sweeps fully out to the left and right sides
   sweepPeriodMs: 3800, // one full left-right-left sweep
 
   // Detection: how long continuous sight takes to catch you (~a fifth of a second).
@@ -73,6 +73,11 @@ export const ARCTIC = {
     { x: 1120, y: 400, r: 56 },
     { x: 205, y: 618, r: 52 },
     { x: 1075, y: 618, r: 52 },
+    // corners — cover so the now-wider cone can't pin you in an open corner.
+    { x: 120, y: 150, r: 56 },
+    { x: 1160, y: 150, r: 56 },
+    { x: 120, y: 660, r: 54 },
+    { x: 1160, y: 660, r: 54 },
   ],
 } as const;
 
@@ -91,13 +96,24 @@ export const ANTARCTIC = {
 
   scrollSpeedStart: 240,
   scrollSpeedEnd: 380,
-  runDurationMs: 22500, // survive this long to reach the colony
+  // Distance (px of ice) to the colony. Progress is distance-based, so holding
+  // the forward boost actually gets you there sooner. ~6900 ≈ a 22.5 s run at
+  // the base speed ramp with no boosting.
+  runDistance: 6900,
+
+  // Forward boost (hold ↑). Adds to the scroll speed while held, so the world
+  // rushes past and you reach the colony faster — but it's metered: a full
+  // meter is boostMaxMs of boosting, and it recharges boostRechargeMult× as
+  // fast as it drains whenever you're not boosting.
+  boostScrollBonus: 200,
+  boostMaxMs: 5000,
+  boostRechargeMult: 2,
 
   // Hole spawning (interval shrinks over the run as it speeds up).
   spawnIntervalStartMs: 1250,
   spawnIntervalEndMs: 720,
 
-  warnY: 300, // hole shows a ripple/telegraph here
+  warnY: 300, // seal head starts emerging from the hole here
   triggerY: 450, // seal lunges when a hole passes here
   sealLungeSpeed: 86.4, // added on top of scroll speed, aimed at the penguin (10% slower than the old 96)
   sealRadius: 26,

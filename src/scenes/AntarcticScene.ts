@@ -8,6 +8,7 @@ interface Hole {
   c: Phaser.GameObjects.Container;
   warned: boolean;
   triggered: boolean;
+  seal?: Phaser.GameObjects.Container; // seal head emerging from this hole (pre-lunge)
 }
 interface Seal {
   c: Phaser.GameObjects.Container;
@@ -33,12 +34,15 @@ export default class AntarcticScene extends Phaser.Scene {
   private seals: Seal[] = [];
   private specks: Phaser.GameObjects.Arc[] = [];
 
-  private elapsed = 0;
+  private distance = 0; // px of ice travelled toward the colony
+  private progress = 0; // distance / runDistance, 0..1
+  private boostFuel = 1; // 1 = full, 0 = empty
   private spawnTimer = 0;
   private scrollSpeed: number = ANTARCTIC.scrollSpeedStart;
   private ended = false;
 
   private progressBar!: Phaser.GameObjects.Graphics;
+  private boostBar!: Phaser.GameObjects.Graphics;
   private bannerShown = false;
 
   constructor() {
@@ -51,7 +55,9 @@ export default class AntarcticScene extends Phaser.Scene {
     this.holes = [];
     this.seals = [];
     this.specks = [];
-    this.elapsed = 0;
+    this.distance = 0;
+    this.progress = 0;
+    this.boostFuel = 1;
     this.spawnTimer = 0;
     this.scrollSpeed = ANTARCTIC.scrollSpeedStart;
     this.ended = false;
@@ -96,6 +102,18 @@ export default class AntarcticScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setDepth(20);
 
+    // Boost meter (top-right): drains while you hold ↑, recharges when you don't.
+    this.add
+      .text(GAME_WIDTH - 182, 30, 'BOOST', {
+        fontFamily: 'system-ui, sans-serif',
+        fontSize: '16px',
+        color: COLORS.textDark,
+        fontStyle: 'bold',
+      })
+      .setOrigin(1, 0.5)
+      .setDepth(20);
+    this.boostBar = this.add.graphics().setDepth(20);
+
     const back = new Button(this, 86, GAME_HEIGHT - 44, '❮ Menu', () => this.toMenu(), {
       width: 130,
       height: 52,
@@ -114,30 +132,45 @@ export default class AntarcticScene extends Phaser.Scene {
   update(_time: number, delta: number): void {
     if (this.ended) return;
     const dt = delta / 1000;
-    this.elapsed += delta;
 
-    const progress = Phaser.Math.Clamp(this.elapsed / ANTARCTIC.runDurationMs, 0, 1);
-    this.scrollSpeed = Phaser.Math.Linear(
+    // Boost: holding ↑ drains the meter; you can only boost while there's fuel.
+    const wantsBoost = this.controls.movement.y < -0.01;
+    const boosting = wantsBoost && this.boostFuel > 0;
+    if (boosting) {
+      this.boostFuel -= delta / ANTARCTIC.boostMaxMs;
+    } else {
+      this.boostFuel += (delta / ANTARCTIC.boostMaxMs) * ANTARCTIC.boostRechargeMult;
+    }
+    this.boostFuel = Phaser.Math.Clamp(this.boostFuel, 0, 1);
+
+    // Base scroll ramps with progress; boosting adds a forward surge on top.
+    const baseScroll = Phaser.Math.Linear(
       ANTARCTIC.scrollSpeedStart,
       ANTARCTIC.scrollSpeedEnd,
-      progress,
+      this.progress,
     );
+    this.scrollSpeed = baseScroll + (boosting ? ANTARCTIC.boostScrollBonus : 0);
 
-    this.updatePenguin(dt);
+    // Distance-based progress, so the boost genuinely shortens the run.
+    this.distance += this.scrollSpeed * dt;
+    this.progress = Phaser.Math.Clamp(this.distance / ANTARCTIC.runDistance, 0, 1);
+
+    this.updatePenguin(dt, boosting);
     this.updateSpecks(dt);
-    this.updateSpawning(delta, progress);
+    this.updateSpawning(delta, this.progress);
     this.updateHoles(dt);
     this.updateSeals(dt);
-    this.drawProgress(progress);
+    this.drawProgress(this.progress);
+    this.drawBoostMeter();
 
-    if (progress >= 1) {
+    if (this.progress >= 1) {
       this.win();
     }
   }
 
   // --- penguin -------------------------------------------------------------
 
-  private updatePenguin(dt: number): void {
+  private updatePenguin(dt: number, boosting: boolean): void {
     const mv = this.controls.movement;
     const accel = ANTARCTIC.steerAccel;
     const max = ANTARCTIC.steerMaxSpeed;
@@ -148,8 +181,11 @@ export default class AntarcticScene extends Phaser.Scene {
     else this.vx -= this.vx * friction * dt; // glide to a stop
     this.vx = Phaser.Math.Clamp(this.vx, -max, max);
 
-    // Vertical: up = slide faster / forward, down = ease back / slower.
-    if (Math.abs(mv.y) > 0.01) this.vy += mv.y * accel * dt;
+    // Vertical: down = ease back / slower (always available); up = ride forward,
+    // but only while you're actually boosting (out of fuel = no forward push).
+    const downInput = mv.y > 0.01;
+    const upBoosting = mv.y < -0.01 && boosting;
+    if (downInput || upBoosting) this.vy += mv.y * accel * dt;
     else this.vy -= this.vy * friction * dt;
     this.vy = Phaser.Math.Clamp(this.vy, -max, max);
 
@@ -222,20 +258,18 @@ export default class AntarcticScene extends Phaser.Scene {
     for (let i = this.holes.length - 1; i >= 0; i--) {
       const h = this.holes[i];
       h.c.y += dy;
+      if (h.seal) h.seal.y += dy; // the emerging seal rides along with its hole
 
+      // Telegraph: at warnY a seal head starts rising out of the hole, growing
+      // over exactly the warn→trigger window, then at triggerY it lunges.
       if (!h.warned && h.c.y >= ANTARCTIC.warnY) {
         h.warned = true;
-        this.tweens.add({
-          targets: h.c,
-          scale: { from: 1, to: 1.18 },
-          yoyo: true,
-          repeat: -1,
-          duration: 220,
-        });
+        this.spawnEmergingSeal(h);
       }
+      if (h.seal && !h.triggered) this.updateEmergingSeal(h);
       if (!h.triggered && h.c.y >= ANTARCTIC.triggerY) {
         h.triggered = true;
-        this.spawnSeal(h.c.x, h.c.y);
+        this.launchSeal(h);
       }
       if (h.c.y > GAME_HEIGHT + 60) {
         h.c.destroy();
@@ -244,16 +278,35 @@ export default class AntarcticScene extends Phaser.Scene {
     }
   }
 
-  private spawnSeal(x: number, y: number): void {
-    const angle = Phaser.Math.Angle.Between(x, y, this.penguin.x, this.penguin.y);
-    const speed = this.scrollSpeed + ANTARCTIC.sealLungeSpeed;
-    const c = this.makeSeal(x, y).setDepth(8);
-    c.setRotation(angle);
+  // A seal head surfaces at the hole, pointed at the penguin, starting tiny.
+  private spawnEmergingSeal(h: Hole): void {
+    const seal = this.makeSeal(h.c.x, h.c.y).setDepth(7).setScale(0.25).setAlpha(0.5);
+    h.seal = seal;
+  }
 
-    // Pop-out flourish, then it's committed along its lunge line.
-    c.setScale(0.4);
-    this.tweens.add({ targets: c, scale: 1, duration: 160, ease: 'Back.out' });
-    this.seals.push({ c, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed });
+  // Grow the emerging seal in lockstep with the hole's travel from warnY→triggerY
+  // (so it emerges over the same time the old pulse used to take), tracking the penguin.
+  private updateEmergingSeal(h: Hole): void {
+    const seal = h.seal!;
+    const t = Phaser.Math.Clamp(
+      (h.c.y - ANTARCTIC.warnY) / (ANTARCTIC.triggerY - ANTARCTIC.warnY),
+      0,
+      1,
+    );
+    seal.setScale(0.25 + 0.75 * t).setAlpha(0.5 + 0.5 * t);
+    seal.setRotation(Phaser.Math.Angle.Between(seal.x, seal.y, this.penguin.x, this.penguin.y));
+  }
+
+  // Trigger: commit the emerged seal along a lunge line aimed at the penguin.
+  private launchSeal(h: Hole): void {
+    const seal = h.seal;
+    if (!seal) return;
+    h.seal = undefined;
+    seal.setDepth(8).setScale(1).setAlpha(1);
+    const angle = Phaser.Math.Angle.Between(seal.x, seal.y, this.penguin.x, this.penguin.y);
+    const speed = this.scrollSpeed + ANTARCTIC.sealLungeSpeed;
+    seal.setRotation(angle);
+    this.seals.push({ c: seal, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed });
   }
 
   private updateSeals(dt: number): void {
@@ -327,6 +380,18 @@ export default class AntarcticScene extends Phaser.Scene {
         .setAlpha(0);
       this.tweens.add({ targets: banner, alpha: 1, y: 130, duration: 400 });
     }
+  }
+
+  private drawBoostMeter(): void {
+    const w = 140;
+    const h = 14;
+    const x = GAME_WIDTH - w - 30;
+    const y = 23;
+    this.boostBar.clear();
+    this.boostBar.fillStyle(0x0e2233, 0.18).fillRoundedRect(x - 3, y - 3, w + 6, h + 6, 7);
+    // Orange when usable, red when nearly out so you can read it at a glance.
+    const col = this.boostFuel > 0.2 ? 0xffa53a : 0xff5a5a;
+    this.boostBar.fillStyle(col, 1).fillRoundedRect(x, y, Math.max(0, w * this.boostFuel), h, 6);
   }
 
   // --- sprite factories ----------------------------------------------------
