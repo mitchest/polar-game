@@ -5,11 +5,11 @@ the Freezers* presentation (`Life in the Freezers.pptx`), so it's designed to pl
 Now we want to make some changes.
 
 Gameplay fixes:
-- Arctic: make the polar bear vision cone longer and add 3-4 more snow mounds around the periphery, so it's not as easy to just go around the outside; make the fox move 10% faster; make it so if you touch the polar bear you're caught; make the fish a little larger
-- Antarctic: make the seals 10% slower; make the whole track length 50% of it's current length
+- Arctic: 
+- Antarctic:
 
 UI/UX fixes:
-- Add a link to the code/repo on the main menu ("https://github.com/mitchest/polar-game")
+- 
 
 ---
 

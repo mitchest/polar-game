@@ -27,6 +27,92 @@ Both input methods work everywhere, at the same time:
 - **Keyboard:** arrow keys / WASD to move, **Space / Enter** to confirm, **Esc** to leave a stage.
 - **Touch:** a virtual joystick appears where you press to move; tap buttons for menus.
 
+## How this was made and works — a K-6 explanation
+
+*A friendly walk-through you can read out loud to a class, or use as talking
+points. Each idea has a simple picture to imagine — and the grown-up details are
+all in the sections below this one.*
+
+### What is a computer game, really? 🧑‍🍳
+
+A game is a really, really long **list of instructions** that a computer follows
+super fast — like the world's pickiest recipe. The computer does *exactly* what
+the instructions say, even if it's silly. So our job was to write very clear
+instructions: "draw a fox here," "when the player presses → move it right,"
+"if the bear sees the fox, show GAME OVER." Writing those instructions is called
+**coding**, and the instructions are called **code**.
+
+### Our toolbox 🧰
+
+We didn't build everything from scratch — we used some ready-made helpers, the
+same way you'd use LEGO instead of carving every brick yourself:
+
+- **TypeScript** — the *language* we wrote the instructions in. It's like writing
+  with a built-in spell-checker that says "hey, did you mean this?" so we make
+  fewer silly mistakes.
+- **Phaser** — a giant **box of game LEGO**. It already knows how to draw
+  pictures, move them around, listen for taps and key presses, and play
+  animations. We just tell it *what* to do.
+- **Vite** — a speedy **helper that builds the game**. While we work, it shows
+  our changes on the screen almost instantly, so we can try an idea and see it
+  right away.
+- **SVG pictures** — the fox, polar bear, penguin and seal are drawn with **math
+  shapes** instead of photos. That means they stay crisp and never get blurry, no
+  matter how big the screen, and the files are tiny so the game loads fast.
+
+### How we built it with an AI helper (agentic coding) 🤖
+
+This game was made by a person working together with an **AI coding helper** (an
+"LLM" — a computer program that's very good with language, like Claude). Here's
+the fun part — instead of typing every line of code by hand, the person could ask
+for things in **plain English**, like talking to a clever helper:
+
+> "Make the fox move a little faster." · "Add more snow mounds so it's harder."
+> · "If the fox touches the bear, it should get caught." · "Put a link to the
+> code on the menu."
+
+The AI helper then **does the actual work, step by step** — this is what
+*"agentic"* means: the AI doesn't just *talk*, it *takes actions* to reach a
+goal, like a helper that can use tools:
+
+1. **Reads** the existing code to understand how the game works.
+2. **Writes or changes** the instructions to add the new idea.
+3. **Runs** the game to check it works and looks for mistakes (called *bugs*).
+4. **Fixes** anything that broke, then shows the result.
+
+And the **person is still the boss** 👑 — they decide what the game should be,
+play-test it to make sure it's *fun*, correct, and kind, and give feedback like a
+coach: "great, but make it 10% slower." Then the loop goes round again. It's
+teamwork: the human has the ideas and the taste, the AI does a lot of the typing
+and checking.
+
+### How the game gets onto the internet 🌍
+
+Writing the game on one computer isn't enough — your friends need to play it on
+*their* phones and tablets. Here's how it travels:
+
+- **GitHub** — a safe place on the internet to keep all the code, like a magic
+  backpack that remembers *every* version. If something breaks, you can go back
+  to how it was yesterday.
+- **GitHub Actions** — a **robot assistant** that wakes up every time we save new
+  code. It automatically builds the game and publishes the newest version — no
+  buttons to push.
+- **GitHub Pages** — turns our code into a **real website** anyone can visit at
+  [the live URL](https://mitchest.github.io/polar-game/).
+- **The QR code** — that little square of dots on the last slide of the
+  presentation. A phone camera reads it like a secret code and jumps **straight
+  to the game's web address** — no typing needed!
+
+### Questions to ask the class 🙋
+
+- A computer follows instructions *exactly*. Can you give me instructions to draw
+  a square? What happens if you forget a step?
+- Why is it handy to keep *every* old version of your work (like GitHub does)?
+- The AI helper is great at typing code, but a *person* decides if the game is fun
+  and fair. Why do you think the human part still really matters?
+- What would *you* add to the game? (More animals? A new level? Sounds?) How would
+  you describe it so a helper knew exactly what to build?
+
 ## Tech stack
 
 - **[Phaser 3](https://phaser.io/)** — 2D game engine (scenes, input, tweens, particles).
