@@ -13,7 +13,7 @@ export default class BootScene extends Phaser.Scene {
     // Dev convenience: ?scene=Arctic (or Antarctic/Menu) jumps straight there,
     // skipping the menu — handy for testing a single stage in isolation.
     const requested = new URLSearchParams(window.location.search).get('scene');
-    const valid = ['Menu', 'Arctic', 'Antarctic', 'Facts', 'GameOver'];
+    const valid = ['Menu', 'Difficulty', 'Arctic', 'Antarctic', 'Facts', 'GameOver'];
     if (requested && valid.includes(requested)) {
       this.scene.start('Preload', { next: requested });
       return;

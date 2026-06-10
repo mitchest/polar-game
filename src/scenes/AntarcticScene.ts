@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT, COLORS, ANTARCTIC } from '../config';
+import { GAME_WIDTH, GAME_HEIGHT, COLORS, ANTARCTIC, antarcticTuning, type Difficulty } from '../config';
 import InputController from '../input/InputController';
 import { touchControls, isTouchDevice } from '../input/TouchControls';
 import Button from '../ui/Button';
@@ -40,6 +40,8 @@ export default class AntarcticScene extends Phaser.Scene {
   private spawnTimer = 0;
   private scrollSpeed: number = ANTARCTIC.scrollSpeedStart;
   private ended = false;
+  private difficulty: Difficulty = 'hard';
+  private tuned = antarcticTuning('hard'); // difficulty-adjusted seal speed + run length (set in create)
 
   private progressBar!: Phaser.GameObjects.Graphics;
   private boostBar!: Phaser.GameObjects.Graphics;
@@ -49,7 +51,14 @@ export default class AntarcticScene extends Phaser.Scene {
     super('Antarctic');
   }
 
+  init(data?: { difficulty?: Difficulty }): void {
+    // Default to 'hard' (the original tuning) so ?scene=Antarctic and any direct
+    // start behave like before.
+    this.difficulty = data?.difficulty ?? 'hard';
+  }
+
   create(): void {
+    this.tuned = antarcticTuning(this.difficulty);
     this.vx = 0;
     this.vy = 0;
     this.holes = [];
@@ -153,7 +162,7 @@ export default class AntarcticScene extends Phaser.Scene {
 
     // Distance-based progress, so the boost genuinely shortens the run.
     this.distance += this.scrollSpeed * dt;
-    this.progress = Phaser.Math.Clamp(this.distance / ANTARCTIC.runDistance, 0, 1);
+    this.progress = Phaser.Math.Clamp(this.distance / this.tuned.runDistance, 0, 1);
 
     this.updatePenguin(dt, boosting);
     this.updateSpecks(dt);
@@ -304,7 +313,7 @@ export default class AntarcticScene extends Phaser.Scene {
     h.seal = undefined;
     seal.setDepth(8).setScale(1).setAlpha(1);
     const angle = Phaser.Math.Angle.Between(seal.x, seal.y, this.penguin.x, this.penguin.y);
-    const speed = this.scrollSpeed + ANTARCTIC.sealLungeSpeed;
+    const speed = this.scrollSpeed + this.tuned.sealLungeSpeed;
     seal.setRotation(angle);
     this.seals.push({ c: seal, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed });
   }
@@ -429,6 +438,7 @@ export default class AntarcticScene extends Phaser.Scene {
       this.scene.start('GameOver', {
         stage: 'Antarctic',
         reason: 'A leopard seal caught you!',
+        difficulty: this.difficulty,
       });
     });
   }

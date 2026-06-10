@@ -17,8 +17,11 @@ the Freezers* presentation, so it's designed to play equally well on a computer
 | 🦊 **Arctic** — *Sneaky Fox* | an Arctic fox | Steal the polar bear's fish and carry it back to your den | the bear's sweeping vision cone spots you (hide behind snow mounds!) |
 | 🐧 **Antarctic** — *Slippery Slide* | a gentoo penguin | Slide along the ice to the colony | a leopard seal lunging from an ice hole catches you |
 
-Clearing **either** region leads to the **Facts** finale. From there you can play
-the other region or return to the menu.
+After picking a region you choose **Easy** or **Hard**. Hard is the game as
+designed; Easy is a gentler version (in the Arctic: a quicker fox, a slower bear
+and more time before it spots you — in the Antarctic: slower seals and a shorter
+slide). Clearing **either** region leads to the **Facts** finale. From there you
+can play the other region or return to the menu.
 
 ## Controls
 
@@ -140,7 +143,7 @@ the same Wi-Fi to test touch controls on a real device.
 
 ### Dev shortcuts (query params)
 
-- `?scene=Arctic` (or `Antarctic` / `Facts` / `GameOver` / `Menu`) — jump straight to a scene.
+- `?scene=Arctic` (or `Antarctic` / `Difficulty` / `Facts` / `GameOver` / `Menu`) — jump straight to a scene.
 - `?renderer=canvas` — force Phaser's 2D canvas backend instead of WebGL.
 
 ## Project structure

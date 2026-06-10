@@ -2,7 +2,7 @@ We've made a small 2D browser game that complements a school project on the pola
 regions. It's reached by scanning a QR code on the final slide of the *Life in
 the Freezers* presentation (`Life in the Freezers.pptx`), so it's designed to play equally well on a computer (keyboard) and a touch-only iPad or phone. The general flow is 1. Pick a region, beat the challenge, and you're rewarded with an animated screen of polar facts. Read and understand the full plan and tech stack (`orchestra/full_game_plan.md`) as well as the intended audience and usage (`README.md`). 
 
-Now we want to make some changes. See Github Issue #1 ("Small ideas and fixes") - read those fixes, let me know your implementation plan, then i'll give the go ahead to implement.
+Now we want to make some changes. See Github Issue #3 - read that feature and implement it.
 
 
 

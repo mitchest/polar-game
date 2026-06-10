@@ -122,3 +122,38 @@ export const ANTARCTIC = {
   // it spinning off-screen instead of being caught.
   chargeDeflectSpeed: 200,
 } as const;
+
+// --- Difficulty modes (Issue #3) -------------------------------------------
+// Players pick Easy or Hard before each stage. **Hard = the base tuning above**
+// (the game as originally designed). Easy derives a gentler version, changing
+// only the few numbers below — everything else (layout, cone shape, hole timing)
+// is identical in both modes.
+export type Difficulty = 'easy' | 'hard';
+
+/**
+ * Arctic tuning for the chosen difficulty.
+ * Easy: the fox is 10% faster, the bear's gaze sweeps 20% slower, and it takes
+ * 20% longer caught in the cone before you're spotted.
+ */
+export function arcticTuning(difficulty: Difficulty) {
+  const easy = difficulty === 'easy';
+  return {
+    foxSpeed: easy ? ARCTIC.foxSpeed * 1.1 : ARCTIC.foxSpeed,
+    sweepPeriodMs: easy ? ARCTIC.sweepPeriodMs / 0.8 : ARCTIC.sweepPeriodMs, // 20% slower sweep
+    detectTimeMs: easy ? ARCTIC.detectTimeMs * 1.2 : ARCTIC.detectTimeMs,
+  };
+}
+
+/**
+ * Antarctic tuning for the chosen difficulty.
+ * Easy: seals lunge 30% slower and the slide to the colony is 30% shorter.
+ * (The issue left the seal slowdown open; 30% mirrors the shorter track for a
+ * consistent "about a third gentler" feel — tweak the 0.7 below to taste.)
+ */
+export function antarcticTuning(difficulty: Difficulty) {
+  const easy = difficulty === 'easy';
+  return {
+    sealLungeSpeed: easy ? ANTARCTIC.sealLungeSpeed * 0.7 : ANTARCTIC.sealLungeSpeed,
+    runDistance: easy ? ANTARCTIC.runDistance * 0.7 : ANTARCTIC.runDistance,
+  };
+}

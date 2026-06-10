@@ -90,7 +90,8 @@ export default class FactsScene extends Phaser.Scene {
     new ButtonMenu(
       this,
       [
-        { label: `Play ${other}`, onSelect: () => this.go(other), width: 320 },
+        // Pick the other stage's difficulty before it starts (like the menu does).
+        { label: `Play ${other}`, onSelect: () => this.go('Difficulty', { region: other }), width: 320 },
         { label: 'Menu', onSelect: () => this.go('Menu'), width: 240 },
       ],
       { x: cx, y: GAME_HEIGHT - 90, gap: 50, buttonHeight: 78 },
@@ -121,10 +122,10 @@ export default class FactsScene extends Phaser.Scene {
       .setDepth(-1);
   }
 
-  private go(key: string): void {
+  private go(key: string, data?: object): void {
     this.cameras.main.fadeOut(250, 14, 34, 51);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-      this.scene.start(key);
+      this.scene.start(key, data);
     });
   }
 }

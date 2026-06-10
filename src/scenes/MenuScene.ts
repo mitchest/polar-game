@@ -37,8 +37,8 @@ export default class MenuScene extends Phaser.Scene {
     new ButtonMenu(
       this,
       [
-        { label: 'Arctic', onSelect: () => this.startStage('Arctic'), width: 320 },
-        { label: 'Antarctic', onSelect: () => this.startStage('Antarctic'), width: 320 },
+        { label: 'Arctic', onSelect: () => this.chooseDifficulty('Arctic'), width: 320 },
+        { label: 'Antarctic', onSelect: () => this.chooseDifficulty('Antarctic'), width: 320 },
       ],
       { x: cx, y: 400, gap: 60 },
     );
@@ -75,10 +75,11 @@ export default class MenuScene extends Phaser.Scene {
     repo.on('pointerup', () => window.open(repoUrl, '_blank', 'noopener'));
   }
 
-  private startStage(key: 'Arctic' | 'Antarctic'): void {
+  // Region chosen — hand off to the Easy/Hard picker before the stage starts.
+  private chooseDifficulty(region: 'Arctic' | 'Antarctic'): void {
     this.cameras.main.fadeOut(250, 14, 34, 51);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-      this.scene.start(key);
+      this.scene.start('Difficulty', { region });
     });
   }
 }

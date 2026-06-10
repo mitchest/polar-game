@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT, COLORS, ARCTIC } from '../config';
+import { GAME_WIDTH, GAME_HEIGHT, COLORS, ARCTIC, arcticTuning, type Difficulty } from '../config';
 import InputController from '../input/InputController';
 import { touchControls, isTouchDevice } from '../input/TouchControls';
 import Button from '../ui/Button';
@@ -27,12 +27,21 @@ export default class ArcticScene extends Phaser.Scene {
   private detect = 0; // 0..1 alarm meter
   private hasFood = false;
   private ended = false;
+  private difficulty: Difficulty = 'hard';
+  private tuned = arcticTuning('hard'); // difficulty-adjusted speeds/timings (set in create)
 
   constructor() {
     super('Arctic');
   }
 
+  init(data?: { difficulty?: Difficulty }): void {
+    // Default to 'hard' (the original tuning) so the ?scene=Arctic dev jump and
+    // any direct start still behave like before.
+    this.difficulty = data?.difficulty ?? 'hard';
+  }
+
   create(): void {
+    this.tuned = arcticTuning(this.difficulty);
     this.elapsed = 0;
     this.detect = 0;
     this.hasFood = false;
@@ -108,8 +117,8 @@ export default class ArcticScene extends Phaser.Scene {
     // (mounds are solid: you can't see through them and you can't walk through them).
     const mv = this.controls.movement;
     const r = ARCTIC.foxRadius;
-    let nx = Phaser.Math.Clamp(this.fox.x + mv.x * ARCTIC.foxSpeed * dt, r, GAME_WIDTH - r);
-    let ny = Phaser.Math.Clamp(this.fox.y + mv.y * ARCTIC.foxSpeed * dt, r, GAME_HEIGHT - r);
+    let nx = Phaser.Math.Clamp(this.fox.x + mv.x * this.tuned.foxSpeed * dt, r, GAME_WIDTH - r);
+    let ny = Phaser.Math.Clamp(this.fox.y + mv.y * this.tuned.foxSpeed * dt, r, GAME_HEIGHT - r);
     for (const m of this.mounds) {
       const ddx = nx - m.x;
       const ddy = ny - m.y;
@@ -132,7 +141,7 @@ export default class ArcticScene extends Phaser.Scene {
     const facing =
       Phaser.Math.DegToRad(ARCTIC.sweepBaseDeg) +
       Phaser.Math.DegToRad(ARCTIC.sweepAmplitudeDeg) *
-        Math.sin((this.elapsed / ARCTIC.sweepPeriodMs) * Math.PI * 2);
+        Math.sin((this.elapsed / this.tuned.sweepPeriodMs) * Math.PI * 2);
 
     const head = {
       x: ARCTIC.bear.x + Math.cos(facing) * 40,
@@ -146,9 +155,9 @@ export default class ArcticScene extends Phaser.Scene {
 
     // Alarm meter fills while seen, cools while hidden.
     if (seen) {
-      this.detect += delta / ARCTIC.detectTimeMs;
+      this.detect += delta / this.tuned.detectTimeMs;
     } else {
-      this.detect -= (delta / ARCTIC.detectTimeMs) * ARCTIC.detectDecayMult;
+      this.detect -= (delta / this.tuned.detectTimeMs) * ARCTIC.detectDecayMult;
     }
     this.detect = Phaser.Math.Clamp(this.detect, 0, 1);
     this.alert.setVisible(this.detect > 0.05);
@@ -319,6 +328,7 @@ export default class ArcticScene extends Phaser.Scene {
       this.scene.start('GameOver', {
         stage: 'Arctic',
         reason,
+        difficulty: this.difficulty,
       });
     });
   }

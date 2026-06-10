@@ -3,6 +3,7 @@ import { GAME_WIDTH, GAME_HEIGHT, COLORS } from './config';
 import BootScene from './scenes/BootScene';
 import PreloadScene from './scenes/PreloadScene';
 import MenuScene from './scenes/MenuScene';
+import DifficultyScene from './scenes/DifficultyScene';
 import ArcticScene from './scenes/ArcticScene';
 import AntarcticScene from './scenes/AntarcticScene';
 import GameOverScene from './scenes/GameOverScene';
@@ -36,6 +37,7 @@ const config: Phaser.Types.Core.GameConfig = {
     BootScene,
     PreloadScene,
     MenuScene,
+    DifficultyScene,
     ArcticScene,
     AntarcticScene,
     GameOverScene,
