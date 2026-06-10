@@ -206,8 +206,8 @@ polar-game/
   slipperiness, hole frequency, seal lunge speed, telegraph timing, run length, the
   penguin's vertical range, and hitbox forgiveness.
 - **As built (M2):** seals lunge **gently** (lunge speed tuned down — the stage was too
-  hard), gradual speed ramp, ~15 s run (track halved for a snappier dash), forgiving
-  hitbox. Up/down speed control was added in response to playtesting.
+  hard), gradual speed ramp, ~22 s run, forgiving hitbox. Up/down speed control
+  was added in response to playtesting.
 - **Polish later:** belly-slide animation, splash particles, fish to collect for score.
 
 ### 6c. Facts / Victory ending (the educational payoff)

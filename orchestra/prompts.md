@@ -5,8 +5,8 @@ the Freezers* presentation (`Life in the Freezers.pptx`), so it's designed to pl
 Now we want to make some changes.
 
 Gameplay fixes:
-- Arctic: 
-- Antarctic:
+- Arctic: Let's make the map a little more expansive - the relative area between the bear and the fox den should be 20% bigger
+- Antarctic: THe course/run is now a bit too short - make it 50% longer than its current length
 
 UI/UX fixes:
 - 

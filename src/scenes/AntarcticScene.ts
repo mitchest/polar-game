@@ -13,6 +13,7 @@ interface Seal {
   c: Phaser.GameObjects.Container;
   vx: number;
   vy: number;
+  deflected?: boolean; // bonked away by a head-on charge — no longer dangerous
 }
 
 /**
@@ -261,12 +262,22 @@ export default class AntarcticScene extends Phaser.Scene {
       s.c.x += s.vx * dt;
       s.c.y += s.vy * dt;
 
+      // A deflected seal is already spinning off-screen — it can't catch you.
       if (
+        !s.deflected &&
         Phaser.Math.Distance.Between(s.c.x, s.c.y, this.penguin.x, this.penguin.y) <
-        ANTARCTIC.hitDistance
+          ANTARCTIC.hitDistance
       ) {
-        this.lose();
-        return;
+        // Charge forward (up) into a seal that's ahead of you and you bonk it
+        // away; meet it any other way and it catches you.
+        const chargingForward = this.vy < -ANTARCTIC.chargeDeflectSpeed;
+        const sealAhead = s.c.y <= this.penguin.y;
+        if (chargingForward && sealAhead) {
+          this.deflectSeal(s);
+        } else {
+          this.lose();
+          return;
+        }
       }
 
       if (
@@ -279,6 +290,17 @@ export default class AntarcticScene extends Phaser.Scene {
         this.seals.splice(i, 1);
       }
     }
+  }
+
+  /** Player charged head-on into the seal: send it spinning off the screen. */
+  private deflectSeal(s: Seal): void {
+    s.deflected = true;
+    const ang = Phaser.Math.Angle.Between(this.penguin.x, this.penguin.y, s.c.x, s.c.y);
+    const speed = 1000;
+    s.vx = Math.cos(ang) * speed;
+    s.vy = Math.sin(ang) * speed;
+    this.tweens.add({ targets: s.c, angle: '+=900', duration: 800, ease: 'Sine.out' });
+    this.cameras.main.shake(120, 0.006); // little bonk
   }
 
   // --- hud -----------------------------------------------------------------

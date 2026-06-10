@@ -33,9 +33,12 @@ export const ARCTIC = {
   foxSpeed: 297, // 10% faster than the old 270
   foxRadius: 16,
 
-  bear: { x: 640, y: 140 },
-  den: { x: 640, y: 632, radius: 72 },
-  food: { x: 640, y: 252 },
+  // Layout spread out from its old footprint (~10% each axis ≈ 20% more area)
+  // so the run between the bear and the den feels more expansive. Bounded by the
+  // fixed 1280×720 design canvas (the den now sits right at the bottom edge).
+  bear: { x: 640, y: 124 },
+  den: { x: 640, y: 648, radius: 72 },
+  food: { x: 640, y: 240 },
 
   // Touch the bear and you're caught (radius around the bear's body, which is
   // ~180×160 px). Smaller than the visible body so grabbing the fish from below
@@ -59,17 +62,17 @@ export const ARCTIC = {
   // (All kept clear of the fox's start/den so the collision doesn't shove the
   // fox on spawn.)
   mounds: [
-    { x: 430, y: 300, r: 58 },
-    { x: 850, y: 300, r: 58 },
-    { x: 600, y: 430, r: 66 },
-    { x: 800, y: 520, r: 58 },
-    { x: 410, y: 520, r: 58 },
-    { x: 640, y: 548, r: 50 },
+    { x: 410, y: 295, r: 58 },
+    { x: 870, y: 295, r: 58 },
+    { x: 595, y: 434, r: 66 },
+    { x: 815, y: 532, r: 58 },
+    { x: 410, y: 532, r: 58 },
+    { x: 640, y: 562, r: 50 },
     // periphery ring
-    { x: 200, y: 400, r: 56 },
-    { x: 1080, y: 400, r: 56 },
-    { x: 240, y: 600, r: 52 },
-    { x: 1040, y: 600, r: 52 },
+    { x: 160, y: 400, r: 56 },
+    { x: 1120, y: 400, r: 56 },
+    { x: 205, y: 618, r: 52 },
+    { x: 1075, y: 618, r: 52 },
   ],
 } as const;
 
@@ -88,7 +91,7 @@ export const ANTARCTIC = {
 
   scrollSpeedStart: 240,
   scrollSpeedEnd: 380,
-  runDurationMs: 15000, // survive this long to reach the colony (track halved)
+  runDurationMs: 22500, // survive this long to reach the colony
 
   // Hole spawning (interval shrinks over the run as it speeds up).
   spawnIntervalStartMs: 1250,
@@ -99,4 +102,7 @@ export const ANTARCTIC = {
   sealLungeSpeed: 86.4, // added on top of scroll speed, aimed at the penguin (10% slower than the old 96)
   sealRadius: 26,
   hitDistance: 38, // forgiving penguin-vs-seal overlap
+  // Charge forward (up) into a seal ahead of you at least this fast and you bonk
+  // it spinning off-screen instead of being caught.
+  chargeDeflectSpeed: 200,
 } as const;

@@ -86,7 +86,7 @@ export default class ArcticScene extends Phaser.Scene {
 
     // Fox (player), starts in the den.
     this.fox = this.makeFox(ARCTIC.den.x, ARCTIC.den.y - 10).setDepth(7);
-    this.carriedFish = this.makeFish(0, -28, 0.78).setVisible(false);
+    this.carriedFish = this.makeFish(0, -11, 0.72).setVisible(false);
     this.fox.add(this.carriedFish);
 
     this.detectBar = this.add.graphics().setDepth(8);
@@ -262,7 +262,7 @@ export default class ArcticScene extends Phaser.Scene {
   // --- sprite factories ----------------------------------------------------
 
   // The fox sprite faces "up" (toward the bear). Movement only flips it
-  // horizontally, and the carried fish sits at its mouth (offset 0,-26).
+  // horizontally, and the carried fish is held at its mouth/front (offset 0,-11).
   // A soft shadow keeps the white fox readable against the pale snow.
   private makeFox(x: number, y: number): Phaser.GameObjects.Container {
     const shadow = this.add.ellipse(0, 18, 36, 13, 0x6f9cba, 0.3);
