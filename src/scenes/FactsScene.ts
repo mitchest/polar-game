@@ -30,6 +30,7 @@ export default class FactsScene extends Phaser.Scene {
     const cx = GAME_WIDTH / 2;
 
     this.addSnow();
+    this.drawRegionBackdrop();
 
     this.add
       .text(cx, 70, 'You made it!', {
@@ -50,6 +51,9 @@ export default class FactsScene extends Phaser.Scene {
 
     // Fact cards, faded in one after another.
     const facts = FACTS[this.region];
+    const icons = this.region === 'arctic'
+      ? ['bear-head', 'fox', 'cod', 'fox', 'cod']
+      : ['penguin', 'ice-hole', 'leopard-seal', 'penguin'];
     const top = 185;
     const cardH = 64;
     const cardGap = 12;
@@ -60,18 +64,21 @@ export default class FactsScene extends Phaser.Scene {
       const bg = this.add
         .rectangle(0, 0, 1000, cardH, 0xffffff, 0.06)
         .setStrokeStyle(2, 0xffffff, 0.18);
-      const dot = this.add.circle(-470, 0, 7, COLORS.accentHi);
+      const iconBg = this.add.circle(-470, 0, 18, 0xffffff, 0.12).setStrokeStyle(1, 0xffffff, 0.22);
+      const icon = this.add
+        .image(-470, 0, icons[i % icons.length])
+        .setScale(icons[i % icons.length] === 'ice-hole' ? 0.28 : 0.34);
       const label = this.add
-        .text(-445, 0, text, {
+        .text(-438, 0, text, {
           fontFamily: 'system-ui, sans-serif',
           fontSize: '21px',
           color: COLORS.text,
-          wordWrap: { width: 900 },
+          wordWrap: { width: 880 },
           lineSpacing: 3,
         })
         .setOrigin(0, 0.5);
 
-      card.add([bg, dot, label]);
+      card.add([bg, iconBg, icon, label]);
       // Cards are visible by default; the tween is a cosmetic slide-in so the
       // content is never hidden behind an animation that might not run.
       card.setX(cx - 28);
@@ -120,6 +127,23 @@ export default class FactsScene extends Phaser.Scene {
         quantity: 1,
       })
       .setDepth(-1);
+  }
+
+  private drawRegionBackdrop(): void {
+    const g = this.add.graphics().setDepth(-2);
+    g.fillStyle(0x17384f, 0.55).fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    g.fillStyle(0xffffff, 0.07).fillCircle(1120, 105, 110);
+    g.fillStyle(0xd8f1fa, 0.14).fillEllipse(GAME_WIDTH / 2, 600, 1150, 150);
+
+    if (this.region === 'arctic') {
+      this.add.image(125, 610, 'fox').setScale(1.15).setAlpha(0.55).setDepth(-1);
+      this.add.image(1125, 605, 'bear-body').setScale(0.5).setAlpha(0.26).setDepth(-2);
+      this.add.image(1184, 565, 'bear-head').setScale(0.62).setAlpha(0.35).setDepth(-1);
+    } else {
+      this.add.image(130, 610, 'penguin').setScale(1.15).setAlpha(0.6).setDepth(-1);
+      this.add.image(1115, 600, 'leopard-seal').setScale(1.15).setAlpha(0.34).setDepth(-1);
+      this.add.image(960, 622, 'ice-hole').setScale(0.72).setAlpha(0.25).setDepth(-2);
+    }
   }
 
   private go(key: string, data?: object): void {

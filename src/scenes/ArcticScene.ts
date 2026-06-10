@@ -52,20 +52,7 @@ export default class ArcticScene extends Phaser.Scene {
 
     this.drawGround();
 
-    // Den (safe zone) at the bottom.
-    this.add.circle(ARCTIC.den.x, ARCTIC.den.y, ARCTIC.den.radius, 0x3a2a22, 0.18);
-    this.add
-      .circle(ARCTIC.den.x, ARCTIC.den.y + 14, ARCTIC.den.radius * 0.7, 0x2a1d16, 0.9)
-      .setDepth(1);
-    this.add
-      .text(ARCTIC.den.x, ARCTIC.den.y + 30, 'DEN', {
-        fontFamily: 'system-ui, sans-serif',
-        fontSize: '18px',
-        color: '#e9d9c9',
-        fontStyle: 'bold',
-      })
-      .setOrigin(0.5)
-      .setDepth(2);
+    this.drawDen();
 
     // Vision cone (drawn under everything else but the ground).
     this.cone = this.add.graphics().setDepth(2);
@@ -76,7 +63,8 @@ export default class ArcticScene extends Phaser.Scene {
     // The fish to steal.
     this.food = this.makeFish(ARCTIC.food.x, ARCTIC.food.y, 1.3).setDepth(4);
 
-    // Polar bear: a full body plus a head that orbits to the facing direction.
+    // Polar bear: a full body plus a head tucked into the shoulders and rotated
+    // toward the gaze direction.
     // A soft contact shadow lifts the cream body off the pale snow.
     this.add.ellipse(ARCTIC.bear.x, ARCTIC.bear.y + 10, 152, 116, 0x6f9cba, 0.22).setDepth(4);
     this.add.image(ARCTIC.bear.x, ARCTIC.bear.y, 'bear-body').setScale(0.5).setDepth(5);
@@ -144,8 +132,8 @@ export default class ArcticScene extends Phaser.Scene {
         Math.sin((this.elapsed / this.tuned.sweepPeriodMs) * Math.PI * 2);
 
     const head = {
-      x: ARCTIC.bear.x + Math.cos(facing) * 40,
-      y: ARCTIC.bear.y + Math.sin(facing) * 40,
+      x: ARCTIC.bear.x + Math.cos(facing) * 22,
+      y: ARCTIC.bear.y + Math.sin(facing) * 22 + 6,
     };
     this.bearHead.setPosition(head.x, head.y).setRotation(facing);
 
@@ -248,7 +236,7 @@ export default class ArcticScene extends Phaser.Scene {
   }
 
   private drawGround(): void {
-    // A few faint snow patches for texture.
+    // Layered snow texture: soft drifts, wind-sculpted ridges, and faint tracks.
     const g = this.add.graphics().setDepth(0);
     g.fillStyle(0xffffff, 0.5);
     const spots: [number, number, number][] = [
@@ -259,13 +247,78 @@ export default class ArcticScene extends Phaser.Scene {
       [700, 350, 55],
     ];
     spots.forEach(([x, y, r]) => g.fillCircle(x, y, r));
+
+    g.lineStyle(2, 0xc9e3f0, 0.34);
+    const ridges: [number, number, number, number][] = [
+      [90, 120, 360, 80],
+      [760, 110, 1130, 80],
+      [120, 350, 390, 320],
+      [820, 405, 1180, 365],
+      [70, 610, 360, 575],
+      [930, 650, 1210, 615],
+    ];
+    ridges.forEach(([x1, y1, x2, y2]) => {
+      g.beginPath();
+      g.moveTo(x1, y1);
+      g.lineTo((x1 + x2) / 2, y1 - 20);
+      g.lineTo(x2, y2);
+      g.strokePath();
+    });
+
+    g.fillStyle(0xb6d8e9, 0.22);
+    const prints: [number, number, number][] = [
+      [470, 615, -0.35],
+      [500, 588, -0.2],
+      [526, 558, -0.15],
+      [560, 535, 0.1],
+      [730, 612, 0.35],
+      [705, 582, 0.22],
+      [676, 554, 0.15],
+    ];
+    prints.forEach(([x, y, rot]) => {
+      g.save();
+      g.translateCanvas(x, y);
+      g.rotateCanvas(rot);
+      g.fillEllipse(-5, 0, 9, 5);
+      g.fillEllipse(5, -1, 9, 5);
+      g.restore();
+    });
+  }
+
+  private drawDen(): void {
+    const { x, y, radius } = ARCTIC.den;
+    const g = this.add.graphics().setDepth(1);
+    g.fillStyle(0x9bbdd0, 0.22).fillEllipse(x, y + 24, radius * 2.2, radius * 0.7);
+    g.fillStyle(0xffffff, 0.95).fillEllipse(x, y - 2, radius * 2.05, radius * 1.1);
+    g.lineStyle(4, 0xd2e8f3, 1).strokeEllipse(x, y - 2, radius * 2.05, radius * 1.1);
+    g.fillStyle(0x4a3428, 0.32).fillEllipse(x, y + 16, radius * 1.25, radius * 0.62);
+    g.fillStyle(0x2a1d16, 0.94).fillEllipse(x, y + 20, radius * 0.92, radius * 0.5);
+    g.fillStyle(0xffffff, 0.55).fillEllipse(x - radius * 0.28, y - 24, radius * 0.58, radius * 0.18);
+
+    this.add
+      .text(x, y + 30, 'DEN', {
+        fontFamily: 'system-ui, sans-serif',
+        fontSize: '18px',
+        color: '#efe1d1',
+        fontStyle: 'bold',
+      })
+      .setOrigin(0.5)
+      .setDepth(2);
   }
 
   private drawMound(x: number, y: number, r: number): void {
     const g = this.add.graphics().setDepth(3);
-    g.fillStyle(0xbcd7e6, 0.9).fillEllipse(x, y + r * 0.5, r * 2.1, r * 0.9); // shadow
+    g.fillStyle(0x9fc4d8, 0.45).fillEllipse(x, y + r * 0.48, r * 2.18, r * 0.86); // shadow
     g.fillStyle(0xffffff, 1).fillCircle(x, y, r);
-    g.lineStyle(3, 0xd4e9f4, 1).strokeCircle(x, y, r);
+    g.fillStyle(0xe3f3fa, 0.85).fillEllipse(x + r * 0.16, y + r * 0.24, r * 1.22, r * 0.72);
+    g.fillStyle(0xffffff, 0.72).fillEllipse(x - r * 0.2, y - r * 0.18, r * 0.9, r * 0.44);
+    g.lineStyle(3, 0xcfe7f3, 1).strokeCircle(x, y, r);
+    g.lineStyle(2, 0xb8d8e9, 0.55);
+    g.beginPath();
+    g.moveTo(x - r * 0.48, y + r * 0.08);
+    g.lineTo(x - r * 0.08, y + r * 0.28);
+    g.lineTo(x + r * 0.46, y + r * 0.1);
+    g.strokePath();
   }
 
   // --- sprite factories ----------------------------------------------------
@@ -281,7 +334,7 @@ export default class ArcticScene extends Phaser.Scene {
 
   // Built facing +x (snout to the right); the scene rotates it to the gaze angle.
   private makeBearHead(): Phaser.GameObjects.Image {
-    return this.add.image(ARCTIC.bear.x, ARCTIC.bear.y, 'bear-head').setScale(0.5);
+    return this.add.image(ARCTIC.bear.x, ARCTIC.bear.y, 'bear-head').setScale(0.6);
   }
 
   private makeFish(x: number, y: number, scale: number): Phaser.GameObjects.Image {

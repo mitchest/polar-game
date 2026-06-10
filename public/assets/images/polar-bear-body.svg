@@ -1,27 +1,43 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="180" height="160" viewBox="0 0 180 160">
   <defs>
-    <radialGradient id="bearBody" cx="50%" cy="44%" r="60%">
-      <stop offset="0%" stop-color="#fffdf4"/>
-      <stop offset="64%" stop-color="#f4ecd8"/>
-      <stop offset="100%" stop-color="#d8c7a4"/>
+    <radialGradient id="bearBody" cx="48%" cy="38%" r="70%">
+      <stop offset="0%" stop-color="#fffef6"/>
+      <stop offset="58%" stop-color="#f3ead6"/>
+      <stop offset="100%" stop-color="#d2bf98"/>
     </radialGradient>
+    <linearGradient id="bearPaw" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f5ecd8"/>
+      <stop offset="100%" stop-color="#ddcfad"/>
+    </linearGradient>
   </defs>
-  <!-- short tail (rump, away from play area) -->
-  <circle cx="90" cy="24" r="9" fill="#f3ead4"/>
-  <!-- back legs (upper) -->
-  <ellipse cx="42" cy="60" rx="21" ry="27" fill="#ece0c6"/>
-  <ellipse cx="138" cy="60" rx="21" ry="27" fill="#ece0c6"/>
-  <ellipse cx="40" cy="74" rx="13" ry="11" fill="#e0d2b4"/>
-  <ellipse cx="140" cy="74" rx="13" ry="11" fill="#e0d2b4"/>
-  <!-- front legs (lower, toward play area) -->
-  <ellipse cx="40" cy="120" rx="20" ry="25" fill="#efe4cc"/>
-  <ellipse cx="140" cy="120" rx="20" ry="25" fill="#efe4cc"/>
-  <ellipse cx="38" cy="136" rx="14" ry="11" fill="#e2d4b8"/>
-  <ellipse cx="142" cy="136" rx="14" ry="11" fill="#e2d4b8"/>
-  <!-- main body -->
-  <ellipse cx="90" cy="82" rx="57" ry="62" fill="url(#bearBody)"/>
-  <!-- shoulders / neck hump where the head attaches -->
-  <ellipse cx="90" cy="130" rx="32" ry="25" fill="url(#bearBody)"/>
-  <!-- soft fur shading down the back -->
-  <ellipse cx="90" cy="70" rx="30" ry="40" fill="#fffdf4" opacity="0.5"/>
+  <!-- rear haunches -->
+  <path d="M43 35 Q20 50 28 78 Q34 96 54 91 Q64 68 57 45 Q52 36 43 35 Z"
+        fill="#eadcc0" stroke="#cdbb96" stroke-width="0.8"/>
+  <path d="M137 35 Q160 50 152 78 Q146 96 126 91 Q116 68 123 45 Q128 36 137 35 Z"
+        fill="#eadcc0" stroke="#cdbb96" stroke-width="0.8"/>
+  <!-- forelegs, spread forward toward the play area -->
+  <path d="M57 98 Q35 112 35 139 Q44 151 59 140 Q66 119 76 106 Z"
+        fill="url(#bearPaw)" stroke="#cdbb96" stroke-width="0.8"/>
+  <path d="M123 98 Q145 112 145 139 Q136 151 121 140 Q114 119 104 106 Z"
+        fill="url(#bearPaw)" stroke="#cdbb96" stroke-width="0.8"/>
+  <path d="M43 138 L46 145 M52 139 L52 147 M61 136 L58 143 M137 138 L134 145 M128 139 L128 147 M119 136 L122 143"
+        stroke="#8b8069" stroke-width="1.25" stroke-linecap="round"/>
+  <!-- one continuous torso/shoulder silhouette, no circular neck patch -->
+  <path d="M90 17
+           Q123 20 142 50
+           Q153 75 139 104
+           Q125 135 92 143
+           Q57 137 40 106
+           Q25 77 39 50
+           Q57 21 90 17 Z"
+        fill="url(#bearBody)" stroke="#cbb993" stroke-width="1.1"/>
+  <!-- subtle head-attachment shoulder saddle, drawn as a line not a separate oval -->
+  <path d="M62 111 Q90 124 118 111" stroke="#d8c7a4" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.7"/>
+  <!-- short tail/rump at the back -->
+  <path d="M80 21 Q90 9 100 21 Q91 27 80 21 Z" fill="#f3ead4" stroke="#d9c8a5" stroke-width="0.8"/>
+  <!-- soft fur highlights -->
+  <path d="M64 43 Q80 49 96 46 M61 73 Q88 84 119 72 M62 100 Q86 111 119 99"
+        stroke="#dfd2b4" stroke-width="2.1" fill="none" stroke-linecap="round" opacity="0.72"/>
+  <path d="M72 35 Q63 47 66 58 M116 35 Q126 47 122 60 M71 120 Q80 128 94 129 M109 122 Q99 129 86 128"
+        stroke="#fff8e9" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.76"/>
 </svg>

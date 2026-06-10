@@ -45,6 +45,8 @@ export default class DifficultyScene extends Phaser.Scene {
     const cx = GAME_WIDTH / 2;
     const info = REGION_INFO[this.region];
 
+    this.drawRegionArt();
+
     this.add
       .text(cx, 150, info.title, {
         fontFamily: 'system-ui, sans-serif',
@@ -118,5 +120,31 @@ export default class DifficultyScene extends Phaser.Scene {
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
       this.scene.start('Menu');
     });
+  }
+
+  private drawRegionArt(): void {
+    const g = this.add.graphics().setDepth(-10);
+    g.fillStyle(0x12384f, 0.5).fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    g.fillStyle(0xffffff, 0.08).fillCircle(1100, 120, 88);
+    g.fillStyle(0xd8f1fa, 0.9).fillRect(0, 570, GAME_WIDTH, GAME_HEIGHT - 570);
+    g.fillStyle(0xffffff, 0.85).fillEllipse(300, 572, 520, 72);
+    g.fillEllipse(980, 574, 520, 72);
+
+    if (this.region === 'Arctic') {
+      this.add.image(170, 520, 'fox').setScale(1.45).setDepth(-8).setAlpha(0.95);
+      this.add.image(1060, 610, 'bear-body').setScale(0.5).setDepth(-9).setAlpha(0.62);
+      this.add.image(1118, 582, 'bear-head').setScale(0.58).setDepth(-8).setAlpha(0.7);
+      this.add.image(840, 602, 'cod').setScale(1.05).setDepth(-8).setAlpha(0.82);
+    } else {
+      this.add.image(210, 525, 'penguin').setScale(1.45).setDepth(-8).setAlpha(0.95);
+      this.add.image(1015, 584, 'leopard-seal').setScale(1.18).setDepth(-8).setAlpha(0.86);
+      this.add.image(760, 545, 'ice-hole').setScale(0.75).setDepth(-9).setAlpha(0.72);
+      g.lineStyle(2, 0x9fd2e8, 0.35);
+      g.beginPath();
+      g.moveTo(370, 590);
+      g.lineTo(530, 638);
+      g.lineTo(690, 610);
+      g.strokePath();
+    }
   }
 }

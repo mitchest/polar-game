@@ -2,7 +2,7 @@ We've made a small 2D browser game that complements a school project on the pola
 regions. It's reached by scanning a QR code on the final slide of the *Life in
 the Freezers* presentation (`Life in the Freezers.pptx`), so it's designed to play equally well on a computer (keyboard) and a touch-only iPad or phone. The general flow is 1. Pick a region, beat the challenge, and you're rewarded with an animated screen of polar facts. Read and understand the full plan and tech stack (`orchestra/full_game_plan.md`) as well as the intended audience and usage (`README.md`). 
 
-Now we want to make some changes. See Github Issue #3 - read that feature and implement it.
+Now we want to make some changes. See Github Issue #2 - read that feature and implement it, you may need to use some image generation skills to make better looking icons/animals/features.
 
 
 
@@ -13,6 +13,11 @@ Gameplay fixes:
 
 UI/UX fixes:
 - 
+
+---
+Some changes:
+- For the arctic: polar bear head should be more naturally attached to the neck/body, less like a carnival machine and get rid of the lump under its head across the game and facts etc.
+- For the Antarctic: make the seals head more realistic across the game and facts etc.
 
 ---
 

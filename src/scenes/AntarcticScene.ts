@@ -75,11 +75,7 @@ export default class AntarcticScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor('#d2effb');
     this.cameras.main.fadeIn(250, 14, 34, 51);
 
-    // Thin-ice / water borders mark the playable width.
-    this.add.rectangle(0, 0, ANTARCTIC.edgeMargin, GAME_HEIGHT, COLORS.antarcticWater, 0.25).setOrigin(0, 0);
-    this.add
-      .rectangle(GAME_WIDTH, 0, ANTARCTIC.edgeMargin, GAME_HEIGHT, COLORS.antarcticWater, 0.25)
-      .setOrigin(1, 0);
+    this.drawIceRun();
 
     // Scrolling snow specks for a sense of speed.
     for (let i = 0; i < 46; i++) {
@@ -223,6 +219,67 @@ export default class AntarcticScene extends Phaser.Scene {
     this.penguin.setRotation(Phaser.Math.Clamp(this.vx / max, -1, 1) * 0.18);
   }
 
+  private drawIceRun(): void {
+    const g = this.add.graphics().setDepth(0);
+
+    // Thin-ice / water borders mark the playable width, with broken floes so
+    // the course feels like sea ice rather than a plain blue rectangle.
+    g.fillStyle(COLORS.antarcticWater, 0.32).fillRect(0, 0, ANTARCTIC.edgeMargin, GAME_HEIGHT);
+    g.fillStyle(COLORS.antarcticWater, 0.32).fillRect(GAME_WIDTH - ANTARCTIC.edgeMargin, 0, ANTARCTIC.edgeMargin, GAME_HEIGHT);
+    g.fillStyle(0xf1fbff, 0.92);
+    const floes: [number, number, number, number][] = [
+      [24, 86, 72, 34],
+      [8, 258, 58, 28],
+      [36, 522, 86, 38],
+      [1190, 118, 78, 35],
+      [1215, 336, 52, 28],
+      [1172, 594, 82, 36],
+    ];
+    floes.forEach(([x, y, w, h]) => g.fillEllipse(x, y, w, h));
+
+    // Long blue skate marks and cracks sell the sliding motion without moving
+    // heavy background art every frame.
+    g.lineStyle(2, 0x9fd2e8, 0.36);
+    const streaks: [number, number, number][] = [
+      [190, 80, 220],
+      [360, 20, 320],
+      [610, 95, 280],
+      [845, 38, 350],
+      [1070, 130, 250],
+      [275, 430, 235],
+      [950, 500, 230],
+    ];
+    streaks.forEach(([x, y, len]) => {
+      g.beginPath();
+      g.moveTo(x, y);
+      g.lineTo(x + Phaser.Math.Between(-18, 18), y + len);
+      g.strokePath();
+    });
+
+    g.lineStyle(2, 0x76b8d6, 0.42);
+    const cracks: [number, number, number, number, number, number][] = [
+      [150, 190, 205, 220, 190, 256],
+      [525, 300, 575, 330, 548, 370],
+      [1038, 232, 1088, 258, 1062, 298],
+      [750, 575, 808, 604, 782, 638],
+    ];
+    cracks.forEach(([x1, y1, x2, y2, x3, y3]) => {
+      g.beginPath();
+      g.moveTo(x1, y1);
+      g.lineTo(x2, y2);
+      g.lineTo(x3, y3);
+      g.strokePath();
+    });
+
+    // A distant colony marker at the top of the route, visible as a tiny goal.
+    g.fillStyle(0x10151a, 0.18);
+    for (const x of [575, 606, 637, 668, 699]) {
+      g.fillEllipse(x, 116, 18, 30);
+      g.fillCircle(x, 95, 8);
+    }
+    g.fillStyle(0xffffff, 0.35).fillEllipse(GAME_WIDTH / 2, 124, 210, 38);
+  }
+
   private updateSpecks(dt: number): void {
     const dy = this.scrollSpeed * dt;
     this.specks.forEach((s) => {
@@ -253,12 +310,13 @@ export default class AntarcticScene extends Phaser.Scene {
 
   private spawnHole(): void {
     const x = Phaser.Math.Between(ANTARCTIC.edgeMargin + 40, GAME_WIDTH - ANTARCTIC.edgeMargin - 40);
-    // Craggy ice hole; slight random rotation so no two look identical.
+    // Craggy ice hole with a soft wet shadow; slight random rotation so no two look identical.
+    const shadow = this.add.ellipse(0, 8, 118, 62, 0x1d5f86, 0.16);
     const hole = this.add
       .image(0, 0, 'ice-hole')
       .setScale(0.5)
       .setRotation(Phaser.Math.FloatBetween(-0.5, 0.5));
-    const c = this.add.container(x, -40, [hole]).setDepth(5);
+    const c = this.add.container(x, -40, [shadow, hole]).setDepth(5);
     this.holes.push({ c, warned: false, triggered: false });
   }
 
@@ -287,7 +345,7 @@ export default class AntarcticScene extends Phaser.Scene {
     }
   }
 
-  // A seal head surfaces at the hole, pointed at the penguin, starting tiny.
+  // A full leopard seal surfaces at the hole, pointed at the penguin, starting tiny.
   private spawnEmergingSeal(h: Hole): void {
     const seal = this.makeSeal(h.c.x, h.c.y).setDepth(7).setScale(0.25).setAlpha(0.5);
     h.seal = seal;
@@ -411,11 +469,12 @@ export default class AntarcticScene extends Phaser.Scene {
     return this.add.image(x, y, 'penguin').setScale(0.5);
   }
 
-  // Angry leopard seal built pointing right (+x). Wrapped in a container so the
-  // scene's pop-out scale tween (0.4 -> 1) works on top of the sprite's 0.5.
+  // Leopard seal built pointing right (+x). Wrapped in a container so the
+  // scene's pop-out scale tween works on top of the sprite's 0.5 scale.
   private makeSeal(x: number, y: number): Phaser.GameObjects.Container {
+    const waterShadow = this.add.ellipse(-8, 8, 82, 30, 0x123f5a, 0.18);
     const seal = this.add.image(0, 0, 'leopard-seal').setScale(0.5);
-    return this.add.container(x, y, [seal]);
+    return this.add.container(x, y, [waterShadow, seal]);
   }
 
   // --- end states ----------------------------------------------------------

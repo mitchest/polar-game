@@ -1,19 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="104" height="68" viewBox="0 0 104 68">
   <defs>
-    <radialGradient id="holeWater" cx="46%" cy="44%" r="62%">
-      <stop offset="0%" stop-color="#1d5f86"/>
-      <stop offset="60%" stop-color="#123f5a"/>
-      <stop offset="100%" stop-color="#0a2c41"/>
+    <radialGradient id="holeWater" cx="46%" cy="44%" r="64%">
+      <stop offset="0%" stop-color="#2f82ad"/>
+      <stop offset="58%" stop-color="#123f5a"/>
+      <stop offset="100%" stop-color="#071f31"/>
     </radialGradient>
+    <linearGradient id="iceRim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f4fbff"/>
+      <stop offset="100%" stop-color="#c7e4f2"/>
+    </linearGradient>
   </defs>
   <!-- craggy ice rim (jagged broken edge) -->
   <polygon points="102,34 88,20 84,12 66,16 52,4 40,15 22,11 18,22 3,34 18,46 22,56 40,53 52,64 64,52 82,57 86,46"
-           fill="#dceff8" stroke="#aed3e8" stroke-width="1.5" stroke-linejoin="round"/>
+           fill="url(#iceRim)" stroke="#9fcbe1" stroke-width="1.6" stroke-linejoin="round"/>
+  <!-- icy facets on broken rim -->
+  <path d="M22 12 L35 24 L18 22 M66 16 L61 28 L84 13 M21 56 L35 46 L40 53 M82 57 L70 45 L86 46" stroke="#e9f7fd" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.8"/>
   <!-- cracks fanning into the surrounding ice -->
-  <path d="M88 28 L100 22 M20 44 L8 50 M52 9 L50 21 M52 60 L52 47" stroke="#b9def0" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <path d="M88 28 L100 22 M20 44 L8 50 M52 9 L50 21 M52 60 L52 47 M34 15 L26 4 M72 52 L82 65" stroke="#9ecfe6" stroke-width="1.45" fill="none" stroke-linecap="round"/>
   <!-- dark open water (jagged inner edge) -->
   <polygon points="86,34 74,24 60,20 48,26 34,21 24,30 18,34 26,42 34,48 48,44 60,49 72,44 80,40"
-           fill="url(#holeWater)" stroke="#0a2c41" stroke-width="1"/>
-  <!-- water ripple highlight -->
-  <ellipse cx="50" cy="32" rx="20" ry="8" fill="none" stroke="#4f96c0" stroke-width="1.4" opacity="0.55"/>
+           fill="url(#holeWater)" stroke="#061f31" stroke-width="1"/>
+  <!-- water ripple highlights -->
+  <ellipse cx="50" cy="32" rx="20" ry="8" fill="none" stroke="#58a6cb" stroke-width="1.35" opacity="0.6"/>
+  <path d="M32 35 Q45 29 61 33 M45 42 Q57 39 70 42" stroke="#79bdd9" stroke-width="1.05" fill="none" stroke-linecap="round" opacity="0.55"/>
 </svg>
