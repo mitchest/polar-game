@@ -133,7 +133,15 @@ export default class DifficultyScene extends Phaser.Scene {
     if (this.region === 'Arctic') {
       this.add.image(170, 520, 'fox').setScale(1.45).setDepth(-8).setAlpha(0.95);
       this.add.image(1060, 610, 'bear-body').setScale(0.5).setDepth(-9).setAlpha(0.62);
-      this.add.image(1118, 582, 'bear-head').setScale(0.58).setDepth(-8).setAlpha(0.7);
+      // Head seated at the front of the body and rotated a quarter-turn so the
+      // muzzle looks down (the body faces down too) — without the rotation the
+      // head's muzzle points sideways out of the shoulder (Issue #4).
+      this.add
+        .image(1060, 632, 'bear-head')
+        .setScale(0.58)
+        .setRotation(Math.PI / 2)
+        .setDepth(-8)
+        .setAlpha(0.7);
       this.add.image(840, 602, 'cod').setScale(1.05).setDepth(-8).setAlpha(0.82);
     } else {
       this.add.image(210, 525, 'penguin').setScale(1.45).setDepth(-8).setAlpha(0.95);
