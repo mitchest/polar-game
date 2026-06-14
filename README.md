@@ -1,4 +1,4 @@
-# Life in the Freezers ❄️🐧
+# Life in the Freezers ❄️
 
 A small 2D browser game that complements Moss's school project on the polar
 regions. It's reached by scanning a QR code on the final slide of the *Life in
@@ -14,8 +14,8 @@ the Freezers* presentation, so it's designed to play equally well on a computer
 
 | Region | You play | Goal | You lose if… |
 | --- | --- | --- | --- |
-| 🦊 **Arctic** — *Sneaky Fox* | an Arctic fox | Steal the polar bear's fish and carry it back to your den | the bear's sweeping vision cone spots you (hide behind snow mounds!) |
-| 🐧 **Antarctic** — *Slippery Slide* | a gentoo penguin | Slide along the ice to the colony | a leopard seal lunging from an ice hole catches you |
+| **Arctic** — *Sneaky Fox* | an Arctic fox | Steal the polar bear's fish and carry it back to your den | the bear's sweeping vision cone spots you (hide behind snow mounds!) |
+| **Antarctic** — *Slippery Slide* | a gentoo penguin | Slide along the ice to the colony | a leopard seal lunging from an ice hole catches you |
 
 After picking a region you choose **Easy** or **Hard**. Hard is the game as
 designed; Easy is a gentler version (in the Arctic: a quicker fox, a slower bear

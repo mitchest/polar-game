@@ -13,11 +13,11 @@ export interface DifficultyData {
 // hint, so kids know the trade-off before they pick.
 const REGION_INFO: Record<Region, { title: string; easyHint: string }> = {
   Arctic: {
-    title: '🦊  Arctic — Sneaky Fox',
+    title: 'Arctic — Sneaky Fox',
     easyHint: 'Easy: a quicker fox, a slower bear, and more time before it spots you',
   },
   Antarctic: {
-    title: '🐧  Antarctic — Slippery Slide',
+    title: 'Antarctic — Slippery Slide',
     easyHint: 'Easy: slower leopard seals and a shorter slide to the colony',
   },
 };

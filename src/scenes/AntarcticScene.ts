@@ -436,7 +436,7 @@ export default class AntarcticScene extends Phaser.Scene {
     if (!this.bannerShown && progress > 0.9) {
       this.bannerShown = true;
       const banner = this.add
-        .text(GAME_WIDTH / 2, 150, 'Colony ahead! 🐧', {
+        .text(GAME_WIDTH / 2, 150, 'Colony ahead!', {
           fontFamily: 'system-ui, sans-serif',
           fontSize: '40px',
           color: '#0e2233',

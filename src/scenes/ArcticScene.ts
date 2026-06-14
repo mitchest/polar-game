@@ -168,7 +168,7 @@ export default class ArcticScene extends Phaser.Scene {
       this.hasFood = true;
       this.food.setVisible(false);
       this.carriedFish.setVisible(true);
-      this.hint.setText('Got it! Sneak back to the den 🦊');
+      this.hint.setText('Got it! Sneak back to the den');
     }
     if (this.hasFood && this.distanceTo(ARCTIC.den.x, ARCTIC.den.y) < ARCTIC.den.radius) {
       this.win();
