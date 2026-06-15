@@ -39,10 +39,11 @@ export default class MenuScene extends Phaser.Scene {
     new ButtonMenu(
       this,
       [
-        { label: 'Arctic', onSelect: () => this.chooseDifficulty('Arctic'), width: 320 },
-        { label: 'Antarctic', onSelect: () => this.chooseDifficulty('Antarctic'), width: 320 },
+        { label: 'Arctic', onSelect: () => this.chooseDifficulty('Arctic'), width: 296 },
+        { label: 'Antarctic', onSelect: () => this.chooseDifficulty('Antarctic'), width: 296 },
+        { label: 'Migratory', onSelect: () => this.chooseDifficulty('Migratory'), width: 296 },
       ],
-      { x: cx, y: 400, gap: 60 },
+      { x: cx, y: 400, gap: 44 },
     );
 
     this.add
@@ -78,7 +79,7 @@ export default class MenuScene extends Phaser.Scene {
   }
 
   // Region chosen — hand off to the Easy/Hard picker before the stage starts.
-  private chooseDifficulty(region: 'Arctic' | 'Antarctic'): void {
+  private chooseDifficulty(region: 'Arctic' | 'Antarctic' | 'Migratory'): void {
     this.cameras.main.fadeOut(250, 14, 34, 51);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
       this.scene.start('Difficulty', { region });
@@ -122,5 +123,7 @@ export default class MenuScene extends Phaser.Scene {
     this.add.image(132, 526, 'fox').setScale(1.15).setAlpha(0.8).setDepth(-8);
     this.add.image(1045, 519, 'penguin').setScale(1.05).setAlpha(0.82).setDepth(-8);
     this.add.image(620, 558, 'bear-body').setScale(0.42).setAlpha(0.22).setDepth(-9);
+    this.add.image(940, 120, 'tern').setScale(0.95).setAlpha(0.7).setDepth(-9).setRotation(-0.12);
+    this.add.image(1080, 96, 'tern').setScale(0.6).setAlpha(0.5).setDepth(-9).setRotation(-0.05);
   }
 }

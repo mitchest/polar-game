@@ -1,7 +1,7 @@
 // Polar facts, taken from Moss's "Life in the Freezers" slides. Shown on the
 // win screen. M3 animates these in nicely; for now they're plain cards.
 
-export type Region = 'arctic' | 'antarctic';
+export type Region = 'arctic' | 'antarctic' | 'migratory';
 
 export const FACTS: Record<Region, string[]> = {
   arctic: [
@@ -17,9 +17,17 @@ export const FACTS: Record<Region, string[]> = {
     'Coelacanths — a rare fish thought to have lived in the same form for 400 million years — can be found in Antarctic waters.',
     'Antarctica is fragile but mighty: huge landscapes and teeming wildlife colonies.',
   ],
+  migratory: [
+    'The Arctic tern makes the longest migration of any animal — from the Arctic all the way to the Antarctic and back, every single year.',
+    'That round trip can be about 70,000 km — like flying around the whole world nearly twice a year!',
+    'By chasing summer at both ends of the Earth, an Arctic tern sees more daylight than almost any other animal.',
+    'Over its long life an Arctic tern can fly roughly the distance to the Moon and back — three times.',
+    'It is light and graceful, with long wings, a forked tail, a black cap and a bright red beak.',
+  ],
 };
 
 export const REGION_TITLE: Record<Region, string> = {
   arctic: 'Arctic Facts',
   antarctic: 'Antarctic Facts',
+  migratory: 'Arctic Tern Facts',
 };

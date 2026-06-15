@@ -16,12 +16,14 @@ the Freezers* presentation, so it's designed to play equally well on a computer
 | --- | --- | --- | --- |
 | **Arctic** — *Sneaky Fox* | an Arctic fox | Steal the polar bear's fish and carry it back to your den | the bear's sweeping vision cone spots you (hide behind snow mounds!) |
 | **Antarctic** — *Slippery Slide* | a gentoo penguin | Slide along the ice to the colony | a leopard seal lunging from an ice hole catches you |
+| **Migratory** — *The Great Flight* | an Arctic tern | Fly the ocean from the South Pole to the North Pole (↑↓ height, → faster, ← slower) | an orca breaching from the sea — or a seabird hovering up high — catches you (climb over the orcas, dip under the birds!) |
 
 After picking a region you choose **Easy** or **Hard**. Hard is the game as
 designed; Easy is a gentler version (in the Arctic: a quicker fox, a slower bear
 and more time before it spots you — in the Antarctic: slower seals and a shorter
-slide). Clearing **either** region leads to the **Facts** finale. From there you
-can play the other region or return to the menu.
+slide — in the Migratory flight: a shorter trip, a faster tern and gentler orca
+breaches). Clearing **any** region leads to the **Facts** finale. From there you
+can play another region or return to the menu.
 
 ## Controls
 
@@ -143,7 +145,7 @@ the same Wi-Fi to test touch controls on a real device.
 
 ### Dev shortcuts (query params)
 
-- `?scene=Arctic` (or `Antarctic` / `Difficulty` / `Facts` / `GameOver` / `Menu`) — jump straight to a scene.
+- `?scene=Arctic` (or `Antarctic` / `Migratory` / `Difficulty` / `Facts` / `GameOver` / `Menu`) — jump straight to a scene.
 - `?renderer=canvas` — force Phaser's 2D canvas backend instead of WebGL.
 
 ## Project structure
@@ -156,7 +158,7 @@ src/
 ├─ input/InputController.ts # shared keyboard + touch input layer
 ├─ ui/                     # Button, ButtonMenu (keyboard+touch navigable)
 ├─ data/facts.ts           # polar facts shown on the win screen
-└─ scenes/                 # Boot, Preload, Menu, Arctic, Antarctic, Facts, GameOver
+└─ scenes/                 # Boot, Preload, Menu, Arctic, Antarctic, Migratory, Facts, GameOver
 orchestra/
 └─ full_game_plan.md       # the design + roadmap doc
 ```
@@ -167,8 +169,8 @@ game logic.
 
 ## Graphics
 
-Characters (fox, polar bear, cod, penguin, leopard seal) and the craggy ice
-holes are **hand-authored SVG sprites** in
+Characters (fox, polar bear, cod, penguin, leopard seal, Arctic tern, orca) and
+the craggy ice holes are **hand-authored SVG sprites** in
 [`public/assets/images/`](public/assets/images/). They're loaded in
 [`PreloadScene`](src/scenes/PreloadScene.ts) at `scale: 2` (rasterised at 2× so
 they stay crisp on high-DPI screens) and drawn at `setScale(0.5)`, so each

@@ -51,9 +51,14 @@ export default class FactsScene extends Phaser.Scene {
 
     // Fact cards, faded in one after another.
     const facts = FACTS[this.region];
-    const icons = this.region === 'arctic'
-      ? ['bear-head', 'fox', 'cod', 'fox', 'cod']
-      : ['penguin', 'ice-hole', 'leopard-seal', 'penguin'];
+    const iconsByRegion: Record<Region, string[]> = {
+      arctic: ['bear-head', 'fox', 'cod', 'fox', 'cod'],
+      antarctic: ['penguin', 'ice-hole', 'leopard-seal', 'penguin'],
+      migratory: ['tern', 'orca', 'tern', 'orca', 'tern'],
+    };
+    const icons = iconsByRegion[this.region];
+    // Some sprites are larger, so shrink them to sit inside the icon circle.
+    const iconScale: Record<string, number> = { 'ice-hole': 0.28, orca: 0.22, tern: 0.3 };
     const top = 185;
     const cardH = 64;
     const cardGap = 12;
@@ -65,9 +70,8 @@ export default class FactsScene extends Phaser.Scene {
         .rectangle(0, 0, 1000, cardH, 0xffffff, 0.06)
         .setStrokeStyle(2, 0xffffff, 0.18);
       const iconBg = this.add.circle(-470, 0, 18, 0xffffff, 0.12).setStrokeStyle(1, 0xffffff, 0.22);
-      const icon = this.add
-        .image(-470, 0, icons[i % icons.length])
-        .setScale(icons[i % icons.length] === 'ice-hole' ? 0.28 : 0.34);
+      const iconKey = icons[i % icons.length];
+      const icon = this.add.image(-470, 0, iconKey).setScale(iconScale[iconKey] ?? 0.34);
       const label = this.add
         .text(-438, 0, text, {
           fontFamily: 'system-ui, sans-serif',
@@ -91,18 +95,21 @@ export default class FactsScene extends Phaser.Scene {
       });
     });
 
-    const other: 'Arctic' | 'Antarctic' =
-      this.region === 'arctic' ? 'Antarctic' : 'Arctic';
+    // Offer the two other regions (pick difficulty first, like the menu does),
+    // plus a way back to the menu.
+    const ALL: { key: Region; name: 'Arctic' | 'Antarctic' | 'Migratory' }[] = [
+      { key: 'arctic', name: 'Arctic' },
+      { key: 'antarctic', name: 'Antarctic' },
+      { key: 'migratory', name: 'Migratory' },
+    ];
+    const items = ALL.filter((r) => r.key !== this.region).map((r) => ({
+      label: `Play ${r.name}`,
+      onSelect: () => this.go('Difficulty', { region: r.name }),
+      width: 300,
+    }));
+    items.push({ label: 'Menu', onSelect: () => this.go('Menu'), width: 220 });
 
-    new ButtonMenu(
-      this,
-      [
-        // Pick the other stage's difficulty before it starts (like the menu does).
-        { label: `Play ${other}`, onSelect: () => this.go('Difficulty', { region: other }), width: 320 },
-        { label: 'Menu', onSelect: () => this.go('Menu'), width: 240 },
-      ],
-      { x: cx, y: GAME_HEIGHT - 90, gap: 50, buttonHeight: 78 },
-    );
+    new ButtonMenu(this, items, { x: cx, y: GAME_HEIGHT - 84, gap: 38, buttonHeight: 72 });
 
     this.add
       .text(GAME_WIDTH - 24, GAME_HEIGHT - 24, 'by Moss', {
@@ -139,10 +146,13 @@ export default class FactsScene extends Phaser.Scene {
       this.add.image(125, 610, 'fox').setScale(1.15).setAlpha(0.55).setDepth(-1);
       this.add.image(1125, 605, 'bear-body').setScale(0.5).setAlpha(0.26).setDepth(-2);
       this.add.image(1184, 565, 'bear-head').setScale(0.62).setAlpha(0.35).setDepth(-1);
-    } else {
+    } else if (this.region === 'antarctic') {
       this.add.image(130, 610, 'penguin').setScale(1.15).setAlpha(0.6).setDepth(-1);
       this.add.image(1115, 600, 'leopard-seal').setScale(1.15).setAlpha(0.34).setDepth(-1);
       this.add.image(960, 622, 'ice-hole').setScale(0.72).setAlpha(0.25).setDepth(-2);
+    } else {
+      this.add.image(120, 600, 'tern').setScale(1.2).setAlpha(0.6).setDepth(-1).setRotation(-0.1);
+      this.add.image(1120, 612, 'orca').setScale(0.8).setAlpha(0.3).setDepth(-1).setRotation(-0.9);
     }
   }
 

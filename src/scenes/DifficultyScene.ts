@@ -3,7 +3,7 @@ import { GAME_WIDTH, GAME_HEIGHT, COLORS, type Difficulty } from '../config';
 import ButtonMenu from '../ui/ButtonMenu';
 import Button from '../ui/Button';
 
-type Region = 'Arctic' | 'Antarctic';
+type Region = 'Arctic' | 'Antarctic' | 'Migratory';
 
 export interface DifficultyData {
   region: Region;
@@ -19,6 +19,10 @@ const REGION_INFO: Record<Region, { title: string; easyHint: string }> = {
   Antarctic: {
     title: 'Antarctic — Slippery Slide',
     easyHint: 'Easy: slower leopard seals and a shorter slide to the colony',
+  },
+  Migratory: {
+    title: 'Migratory — The Great Flight',
+    easyHint: 'Easy: a shorter flight, a faster tern, and gentler orca breaches',
   },
 };
 
@@ -143,7 +147,7 @@ export default class DifficultyScene extends Phaser.Scene {
         .setDepth(-8)
         .setAlpha(0.7);
       this.add.image(840, 602, 'cod').setScale(1.05).setDepth(-8).setAlpha(0.82);
-    } else {
+    } else if (this.region === 'Antarctic') {
       this.add.image(210, 525, 'penguin').setScale(1.45).setDepth(-8).setAlpha(0.95);
       this.add.image(1015, 584, 'leopard-seal').setScale(1.18).setDepth(-8).setAlpha(0.86);
       this.add.image(760, 545, 'ice-hole').setScale(0.75).setDepth(-9).setAlpha(0.72);
@@ -153,6 +157,12 @@ export default class DifficultyScene extends Phaser.Scene {
       g.lineTo(530, 638);
       g.lineTo(690, 610);
       g.strokePath();
+    } else {
+      // Migratory: a tern in the sky and an orca breaching from the open ocean.
+      g.fillStyle(0x2f7bb0, 0.85).fillRect(0, 600, GAME_WIDTH, GAME_HEIGHT - 600);
+      g.fillStyle(0x8fd0ec, 0.5).fillRect(0, 600, GAME_WIDTH, 4);
+      this.add.image(250, 470, 'tern').setScale(1.7).setDepth(-8).setAlpha(0.95).setRotation(-0.12);
+      this.add.image(980, 560, 'orca').setScale(1.05).setDepth(-8).setAlpha(0.9).setRotation(-1.0);
     }
   }
 }

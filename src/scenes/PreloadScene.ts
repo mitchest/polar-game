@@ -38,6 +38,9 @@ export default class PreloadScene extends Phaser.Scene {
     this.load.svg('penguin', 'assets/images/penguin.svg', { scale: 2 });
     this.load.svg('leopard-seal', 'assets/images/leopard-seal.svg', { scale: 2 });
     this.load.svg('ice-hole', 'assets/images/ice-hole.svg', { scale: 2 });
+    this.load.svg('tern', 'assets/images/arctic-tern.svg', { scale: 2 });
+    this.load.svg('orca', 'assets/images/orca.svg', { scale: 2 });
+    this.load.svg('seabird', 'assets/images/albatross.svg', { scale: 2 });
   }
 
   create(): void {

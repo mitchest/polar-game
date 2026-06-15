@@ -6,6 +6,7 @@ import MenuScene from './scenes/MenuScene';
 import DifficultyScene from './scenes/DifficultyScene';
 import ArcticScene from './scenes/ArcticScene';
 import AntarcticScene from './scenes/AntarcticScene';
+import MigratoryScene from './scenes/MigratoryScene';
 import GameOverScene from './scenes/GameOverScene';
 import FactsScene from './scenes/FactsScene';
 
@@ -40,6 +41,7 @@ const config: Phaser.Types.Core.GameConfig = {
     DifficultyScene,
     ArcticScene,
     AntarcticScene,
+    MigratoryScene,
     GameOverScene,
     FactsScene,
   ],

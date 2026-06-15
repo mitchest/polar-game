@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="122" height="80" viewBox="0 0 122 80">
+  <defs>
+    <linearGradient id="orcaBack" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#313a44"/>
+      <stop offset="55%" stop-color="#1b2127"/>
+      <stop offset="100%" stop-color="#0e1216"/>
+    </linearGradient>
+    <linearGradient id="orcaBelly" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#cfe0ec"/>
+    </linearGradient>
+  </defs>
+  <!-- tail flukes, behind the body -->
+  <path d="M30 46 Q14 38 3 31 Q9 41 17 45 Q9 49 3 61 Q15 54 30 46 Z" fill="url(#orcaBack)" stroke="#0c0f13" stroke-width="0.6"/>
+  <!-- long torpedo body -->
+  <path d="M22 46 Q34 24 64 23 Q92 23 107 41 Q110 44 107 48 Q93 63 64 64 Q34 64 22 46 Z" fill="url(#orcaBack)" stroke="#0b0e12" stroke-width="0.9"/>
+  <!-- grey saddle patch behind the dorsal fin -->
+  <ellipse cx="66" cy="32" rx="11" ry="5.2" fill="#6b7884" opacity="0.8"/>
+  <!-- tall raked-back dorsal fin -->
+  <path d="M44 27 Q47 9 50 6 Q56 13 60 27 Q52 25 44 27 Z" fill="url(#orcaBack)" stroke="#0b0e12" stroke-width="0.6"/>
+  <!-- white belly / underside -->
+  <path d="M40 60 Q66 68 100 50 Q101 55 95 59 Q70 68 48 63 Q42 61 40 60 Z" fill="url(#orcaBelly)" opacity="0.95"/>
+  <!-- white lower jaw -->
+  <path d="M86 52 Q98 54 107 47 Q107 51 102 53 Q94 57 86 56 Q83 54 86 52 Z" fill="#f1f8fc" opacity="0.92"/>
+  <!-- black pectoral fin -->
+  <path d="M80 54 Q70 70 58 75 Q66 62 73 53 Z" fill="#161a1f" stroke="#0b0e12" stroke-width="0.5"/>
+  <!-- white eye patch -->
+  <ellipse cx="90" cy="38" rx="8.5" ry="5" fill="#f1f8fc" transform="rotate(-12 90 38)"/>
+  <!-- eye -->
+  <circle cx="94" cy="41" r="1.7" fill="#0a0d11"/>
+  <!-- mouth line -->
+  <path d="M84 49 Q96 52 106 46" stroke="#0b0e12" stroke-width="1" fill="none" opacity="0.5"/>
+  <!-- soft back highlight -->
+  <path d="M40 30 Q60 25 86 30" stroke="#46515c" stroke-width="1.2" fill="none" opacity="0.5" stroke-linecap="round"/>
+</svg>

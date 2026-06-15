@@ -123,6 +123,72 @@ export const ANTARCTIC = {
   chargeDeflectSpeed: 200,
 } as const;
 
+// --- Migratory: "The Great Flight" side-on flyer tuning (Issues #5, #6) -----
+// An Arctic tern flies over the open ocean from the South Pole to the North
+// Pole. You're at a fixed spot on screen and the sea scrolls past beneath you.
+//   ↑ fly higher · ↓ fly lower · → faster · ← slower
+// Two hazards alternate: orcas breach straight up from the sea (climb above
+// them) and seabirds hover up high (dip back down under them). Reach the pole.
+export const MIGRATORY = {
+  ternX: 360, // fixed horizontal position; the world scrolls past it
+  ternStartY: 280,
+  ternMinY: 96, // highest the tern can climb
+  ternMaxY: 446, // lowest skim, just above the waterline
+  ternRadius: 22,
+  waterLineY: 472, // sea surface; sky above, ocean below
+
+  // Vertical flight: a gentle constant sink (gliding) you counter by flapping up.
+  // Holding ↑ climbs, ↓ dives faster, nothing = a slow glide down — so staying
+  // high (out of orca range) takes a little ongoing effort.
+  gravity: 300, // constant downward pull (px/s^2)
+  flapAccel: 2300, // ↑ climb acceleration
+  diveAccel: 2000, // ↓ extra descent acceleration
+  vDrag: 2.2, // air resistance, so speeds settle instead of running away
+  maxVSpeed: 540,
+
+  // Forward speed (→ faster / ← slower). With no input the tern cruises; the run
+  // is distance-based so going faster reaches the pole sooner but gives less time
+  // to react. The fast/slow spread is wide so the control clearly matters
+  // (Issue #6: the cruise→fast and cruise→slow swings are 50% bigger than the
+  // first cut, which barely changed the pace).
+  cruiseSpeed: 300,
+  minSpeed: 150,
+  maxSpeed: 555,
+  speedEase: 2.6, // how quickly the flight speed eases toward its target
+
+  runDistance: 6900, // base = the penguin track; Hard stretches it (see migratoryTuning)
+
+  // Hazards alternate (orca, then seabird, then orca…) and are spawned by
+  // DISTANCE travelled, not time — so the gap between an orca and the following
+  // bird is a fixed number of pixels however fast you fly. That gap is wider than
+  // the distance an orca can travel during its airborne time, so an orca always
+  // lands before the next bird reaches the tern's column: you can never be pinched
+  // between an orca below and a bird above. (Flying faster just packs the
+  // alternating hazards closer together in time.) This is the BASE gap;
+  // migratoryTuning() tightens it per difficulty for more hazards (Easy +10%,
+  // Hard +69% — two +30% bumps) — and it stays above the no-pinch minimum.
+  spawnGapPx: 820,
+
+  // Orcas breach straight up out of the tern's column (climb above the peak).
+  // The launch speed and gravity are paired so the arc still peaks around y≈264
+  // (above the tern's cruise) but is quick, so the hazards can pack closer
+  // together without an orca ever overstaying in the column.
+  warnAheadX: 460, // the boil starts churning this far ahead of the tern
+  orcaGravity: 2650, // gravity on the airborne orca (sets how high + how long it arcs)
+  orcaBreachSpeed: 1050, // upward launch speed
+  orcaBreachVar: 50, // ± random variation in launch speed
+  orcaRadius: 34,
+  hitDistance: 50, // forgiving tern-vs-orca overlap
+
+  // Seabirds (albatrosses / petrels) hover in the upper air (Issue #6). They
+  // don't chase — they just block the ceiling so you can't camp up high to avoid
+  // the orcas, forcing you back down toward the water. Hit one and you're caught.
+  birdBandTopY: 104, // highest a bird hovers
+  birdBandBottomY: 285, // lowest a bird hovers
+  birdHitDistance: 48,
+  petrelChance: 0.5, // else an albatross (bigger, paler)
+} as const;
+
 // --- Difficulty modes (Issue #3) -------------------------------------------
 // Players pick Easy or Hard before each stage. **Hard = the base tuning above**
 // (the game as originally designed). Easy derives a gentler version, changing
@@ -155,5 +221,25 @@ export function antarcticTuning(difficulty: Difficulty) {
   return {
     sealLungeSpeed: easy ? ANTARCTIC.sealLungeSpeed * 0.7 : ANTARCTIC.sealLungeSpeed,
     runDistance: easy ? ANTARCTIC.runDistance * 0.7 : ANTARCTIC.runDistance,
+  };
+}
+
+/**
+ * Migratory tuning for the chosen difficulty (Issues #5, #6).
+ * Easy: the track to the pole is 30% shorter, the tern flies ~10% faster, and
+ * the orcas breach more weakly (lower jumps that are easier to clear).
+ * Hard: the run is 20% longer than the base (penguin-length) track (Issue #6).
+ * Hazard density: Easy has 10% more orcas + seabirds; Hard has 30% more applied
+ * twice (≈69% more) — a tighter spawn gap packs more of each over the run (still
+ * above the no-pinch minimum).
+ */
+export function migratoryTuning(difficulty: Difficulty) {
+  const easy = difficulty === 'easy';
+  return {
+    runDistance: easy ? MIGRATORY.runDistance * 0.7 : MIGRATORY.runDistance * 1.2,
+    cruiseSpeed: easy ? MIGRATORY.cruiseSpeed * 1.1 : MIGRATORY.cruiseSpeed,
+    maxSpeed: easy ? MIGRATORY.maxSpeed * 1.1 : MIGRATORY.maxSpeed,
+    orcaBreachSpeed: easy ? MIGRATORY.orcaBreachSpeed * 0.78 : MIGRATORY.orcaBreachSpeed,
+    spawnGapPx: easy ? MIGRATORY.spawnGapPx / 1.1 : MIGRATORY.spawnGapPx / 1.69,
   };
 }

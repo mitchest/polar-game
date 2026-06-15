@@ -35,7 +35,7 @@ iPad or phone, and the game has to work completely on either.
 ```
                  ┌─────────────┐
                  │  Title /    │   "Life in the Freezers — by Moss"
-                 │  Main Menu  │   [ Arctic ]   [ Antarctic ]
+                 │  Main Menu  │   [ Arctic ] [ Antarctic ] [ Migratory ]
                  └──────┬──────┘
             ┌───────────┴───────────┐
             ▼                       ▼
@@ -57,9 +57,9 @@ iPad or phone, and the game has to work completely on either.
               └──────────────────┘
 ```
 
-- Two entry points from the menu: **Arctic** or **Antarctic**.
-- Clearing **either** stage leads to the animated **Facts** screen (the win
-  ending). Players can return to the menu to try the other stage too.
+- Three entry points from the menu: **Arctic**, **Antarctic**, or **Migratory**.
+- Clearing **any** stage leads to the animated **Facts** screen (the win
+  ending). Players can return to the menu to try the other stages too.
 - Losing shows a friendly **Game Over** with **Retry** and **Menu**.
 
 ---
@@ -131,9 +131,10 @@ polar-game/
 │  ├─ scenes/
 │  │  ├─ BootScene.ts          # set scale/input, hand to Preload
 │  │  ├─ PreloadScene.ts       # load assets + loading bar
-│  │  ├─ MenuScene.ts          # title + Arctic/Antarctic buttons
+│  │  ├─ MenuScene.ts          # title + Arctic/Antarctic/Migratory buttons
 │  │  ├─ ArcticScene.ts        # fox vs polar bear (stealth)
 │  │  ├─ AntarcticScene.ts     # penguin vs leopard seals (dodge)
+│  │  ├─ MigratoryScene.ts     # arctic tern flight, dodge breaching orcas (Issue #5)
 │  │  ├─ FactsScene.ts         # animated win/facts ending
 │  │  └─ GameOverScene.ts      # retry / menu
 │  ├─ objects/
@@ -210,9 +211,42 @@ polar-game/
   was added in response to playtesting.
 - **Polish later:** belly-slide animation, splash particles, fish to collect for score.
 
-### 6c. Facts / Victory ending (the educational payoff)
+### 6c. Migratory — "The Great Flight" (side-on flyer, Issues #5, #6)
 
-- Triggered on winning **either** stage. Celebratory but calm.
+> An Arctic tern flies the open ocean from the South Pole to the North Pole —
+> the longest migration of any animal. Orcas below and seabirds above try to stop it.
+
+- **View:** side-on. Sky above, ocean below; the tern holds a fixed spot on
+  screen while the sea (waves, parallax clouds and distant ice) scrolls past.
+- **Player:** the tern. **↑ fly higher / ↓ fly lower** — a gentle constant glide-
+  sink means staying high takes a little ongoing flapping — and **→ faster / ←
+  slower** for forward speed (Issue #6 swapped these and widened the swing 50%).
+  Keyboard arrows/WASD or the touch joystick.
+- **Hazards (they alternate):** **orcas** breach **straight up** out of the tern's
+  column — a boil of bubbles warns you, then the orca rises through every height
+  there, so the only way past is to **climb above its peak**. **Seabirds**
+  (albatrosses & petrels, Issue #6) **hover up high** and *don't* chase — they
+  just block the ceiling so you **dip back down** under them. Orca and bird are
+  spaced **by distance**, so they never share your column: there's always a safe
+  gap, but you can camp at neither the water nor the sky. Touch either = caught.
+- **Goal:** reach the North Pole — a distance-based progress bar fills, S → N.
+- **Lose:** an orca or a seabird overlaps the tern → Game Over.
+- **Win:** progress bar full → Facts screen.
+- **Track length:** the base run equals the penguin track (6900 px); **Hard
+  stretches it 20% longer** (Issue #6).
+- **Tuning knobs (`config.ts` → `MIGRATORY`):** flight speeds, gravity/flap/dive,
+  run distance, hazard spacing, orca breach height + variation, the seabird band, hitboxes.
+- **Difficulty:** Easy shortens the flight, speeds the tern ~10%, weakens orca
+  breaches and has ~10% more hazards; Hard is the base tuning but 20% longer with
+  ~69% more orcas + seabirds (two +30% bumps) — picked on the same Easy/Hard
+  screen as the others.
+- **Art:** hand-authored SVG **Arctic tern** (white/pale-grey, black cap, red bill,
+  forked tail), **orca** (black, white belly/eye-patch, tall dorsal fin), and a
+  gliding **albatross/petrel** seabird (long dark wings, hooked pale bill).
+
+### 6d. Facts / Victory ending (the educational payoff)
+
+- Triggered on winning **any** stage. Celebratory but calm.
 - **Animation:** snow/particle backdrop, fact cards that fade/slide in one at a time,
   small icons per fact, a gentle title reveal, and a "by Moss" credit.
 - **Buttons:** "Play the other stage" and "Back to menu" / "Play again".
@@ -230,6 +264,12 @@ polar-game/
   - Tiny microbes near the surface of the Southern Ocean power the food chain, carrying food from the sunlit surface down to animals in the dark depths.
   - Coelacanths — a rare fish thought to have lived in the same form for **400 million years** — can be found in Antarctic waters.
   - Antarctica is fragile but mighty: huge landscapes and teeming wildlife colonies.
+
+  **Migratory (Arctic tern)**
+  - The Arctic tern makes the longest migration of any animal — Arctic to Antarctic and back, every year.
+  - That round trip can be about **70,000 km** — like flying nearly twice around the world a year.
+  - Chasing summer at both ends of the Earth, it sees more daylight than almost any animal.
+  - Over its life it can fly roughly the distance to the **Moon and back — three times**.
 
 ---
 
@@ -306,6 +346,13 @@ wire up deploy once a prototype was working, rather than deploy-first.)
 - **M4 — Polish.** Transitions, difficulty tuning from real playtests, optional audio +
   mute toggle, control-hint glyphs, real-device checks on a keyboard machine and a
   touch-only iPad/phone.
+- **M6 — Migratory region (Issues #5, #6).** ✅ **Done.** A third stage: a side-on
+  Arctic-tern flight from the South Pole to the North Pole. Two alternating hazards
+  — orcas breaching straight up from the sea (climb over them) and seabirds hovering
+  up high (dip under them) — so you can camp at neither extreme; spaced by distance
+  so they never pinch you. ↑↓ height / →← speed (→ faster), Easy/Hard with a 20%
+  longer Hard run, and a new Arctic-tern facts finale. Hand-authored tern, orca and
+  albatross/petrel SVGs in the existing style.
 - **M5 — Art pass & ship.** *In progress.* First art upgrade done — programmer-art
   characters replaced with hand-authored **SVG sprites** (Arctic fox, full-body polar
   bear, cod, belly-sliding penguin, angry leopard seal, craggy ice holes). Remaining:

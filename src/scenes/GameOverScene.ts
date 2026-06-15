@@ -3,7 +3,7 @@ import { GAME_WIDTH, GAME_HEIGHT, COLORS, type Difficulty } from '../config';
 import ButtonMenu from '../ui/ButtonMenu';
 
 export interface GameOverData {
-  stage: 'Arctic' | 'Antarctic';
+  stage: 'Arctic' | 'Antarctic' | 'Migratory';
   reason: string;
   difficulty: Difficulty;
 }

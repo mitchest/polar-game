@@ -1,7 +1,7 @@
 We've made a small 2D browser game that complements a school project on the polar
 regions. It supports the *Life in the Freezers* presentation (`Life in the Freezers.pptx`). It's designed to play equally well on a computer (keyboard) and a touch-only iPad or phone. The general flow is 1. Pick a region, beat the challenge, and you're rewarded with an animated screen of polar facts. Read and understand the full plan and tech stack (`orchestra/full_game_plan.md`) as well as the intended audience and usage (`README.md`). 
 
-Now we want to make some changes. See Github Issue #4 - read that whole issue and implement the requested changes it.
+Now we want to make some changes. See Github Issue #5 - read that whole issue and implement the requested new level.
 
 
 
